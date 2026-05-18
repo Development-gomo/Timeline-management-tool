@@ -257,11 +257,8 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
             <span className="mt-[7px] h-2.5 w-2.5 rounded-full bg-[#17b26a] shadow-[0_0_0_6px_rgba(23,178,106,0.12)]" />
             <div>
               <strong className="mb-1 block text-sm font-semibold text-[#070c11]">
-                System Healthy
+                {loadError ? "Sync Issue" : "System Healthy"}
               </strong>
-              <p className="m-0 text-sm text-[#667085]">
-                Workspace data syncs with Firestore when Firebase is configured.
-              </p>
               {loadError ? (
                 <p className="mt-2 text-sm text-[#f04438]">{loadError}</p>
               ) : null}
