@@ -4,7 +4,6 @@ import * as XLSX from "xlsx";
 import Gantt from "../components/Gantt";
 import { findProjectByPublicTimelineId } from "../lib/publicTimeline";
 import {
-  formatDateString,
   normalizeStoredTask,
   TASK_STATUS_LABELS,
   TASK_STATUS_OPTIONS,
@@ -34,6 +33,32 @@ const statusLabelByValue = TASK_STATUS_LABELS;
 const statusValueByLabel = Object.fromEntries(
   TASK_STATUS_OPTIONS.map((option) => [option.label.toLowerCase(), option.value])
 );
+const monthNumberByName = {
+  jan: "01",
+  january: "01",
+  feb: "02",
+  february: "02",
+  mar: "03",
+  march: "03",
+  apr: "04",
+  april: "04",
+  may: "05",
+  jun: "06",
+  june: "06",
+  jul: "07",
+  july: "07",
+  aug: "08",
+  august: "08",
+  sep: "09",
+  sept: "09",
+  september: "09",
+  oct: "10",
+  october: "10",
+  nov: "11",
+  november: "11",
+  dec: "12",
+  december: "12",
+};
 
 function createImportId(prefix) {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -92,13 +117,78 @@ function getTaskSignature(taskType, description) {
   return `${normalizeLookupText(taskType) || "general"}::${descriptionKey}`;
 }
 
+function buildDateString(year, month, day) {
+  const normalizedYear = Number(year);
+  const normalizedMonth = Number(month);
+  const normalizedDay = Number(day);
+
+  if (
+    !Number.isInteger(normalizedYear) ||
+    !Number.isInteger(normalizedMonth) ||
+    !Number.isInteger(normalizedDay) ||
+    normalizedYear < 1900 ||
+    normalizedMonth < 1 ||
+    normalizedMonth > 12 ||
+    normalizedDay < 1 ||
+    normalizedDay > 31
+  ) {
+    return "";
+  }
+
+  return `${normalizedYear}-${String(normalizedMonth).padStart(2, "0")}-${String(normalizedDay).padStart(2, "0")}`;
+}
+
+function parseDateText(value) {
+  const text = String(value || "").trim();
+  if (!text) {
+    return "";
+  }
+
+  const isoMatch = text.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (isoMatch) {
+    return buildDateString(isoMatch[1], isoMatch[2], isoMatch[3]);
+  }
+
+  const dayMonthNameMatch = text.match(/^(\d{1,2})[\s-/.,]+([A-Za-z]+)[\s-/.,]+(\d{2,4})$/);
+  if (dayMonthNameMatch) {
+    const [, day, monthName, year] = dayMonthNameMatch;
+    const month = monthNumberByName[monthName.toLowerCase()];
+    const normalizedYear = Number(year) < 100 ? Number(year) + 2000 : Number(year);
+    return month ? buildDateString(normalizedYear, month, day) : "";
+  }
+
+  const monthNameDayMatch = text.match(/^([A-Za-z]+)[\s-/.,]+(\d{1,2})[\s-/.,]+(\d{2,4})$/);
+  if (monthNameDayMatch) {
+    const [, monthName, day, year] = monthNameDayMatch;
+    const month = monthNumberByName[monthName.toLowerCase()];
+    const normalizedYear = Number(year) < 100 ? Number(year) + 2000 : Number(year);
+    return month ? buildDateString(normalizedYear, month, day) : "";
+  }
+
+  const slashMatch = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (slashMatch) {
+    const [, first, second, year] = slashMatch;
+    const normalizedYear = Number(year) < 100 ? Number(year) + 2000 : Number(year);
+    const firstNumber = Number(first);
+    const secondNumber = Number(second);
+
+    if (firstNumber > 12) {
+      return buildDateString(normalizedYear, second, first);
+    }
+
+    return buildDateString(normalizedYear, first, second);
+  }
+
+  return "";
+}
+
 function parseExcelDate(value) {
   if (!value) {
     return "";
   }
 
   if (value instanceof Date) {
-    return formatDateString(value);
+    return buildDateString(value.getUTCFullYear(), value.getUTCMonth() + 1, value.getUTCDate());
   }
 
   if (typeof value === "number") {
@@ -107,12 +197,10 @@ function parseExcelDate(value) {
       return "";
     }
 
-    return formatDateString(
-      `${parsedDate.y}-${String(parsedDate.m).padStart(2, "0")}-${String(parsedDate.d).padStart(2, "0")}`
-    );
+    return buildDateString(parsedDate.y, parsedDate.m, parsedDate.d);
   }
 
-  return formatDateString(String(value).trim());
+  return parseDateText(value);
 }
 
 function formatExcelDate(value) {
@@ -436,7 +524,7 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
 
     try {
       const workbook = XLSX.read(await file.arrayBuffer(), {
-        cellDates: true,
+        cellDates: false,
       });
       const worksheet =
         workbook.Sheets[TIMELINE_SHEET_NAME] ||
@@ -448,7 +536,8 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
 
       const rows = XLSX.utils.sheet_to_json(worksheet, {
         defval: "",
-        raw: true,
+        raw: false,
+        dateNF: "yyyy-mm-dd",
       });
       const nextTimeline = buildTimelineFromRows(rows, project);
 
