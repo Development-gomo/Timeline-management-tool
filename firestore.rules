@@ -7,7 +7,8 @@ service cloud.firestore {
     }
 
     match /projects/{document=**} {
-      allow read, write: if isSignedIn();
+      allow get: if true;
+      allow list, write: if isSignedIn();
     }
 
     match /app_users/{document=**} {

@@ -1,0 +1,77 @@
+[debug] [2026-05-20T08:03:24.062Z] ----------------------------------------------------------------------
+[debug] [2026-05-20T08:03:24.063Z] Command:       /opt/homebrew/Cellar/node/23.11.0/bin/node /opt/homebrew/bin/firebase deploy --only firestore:rules --project dev-timeline-tool
+[debug] [2026-05-20T08:03:24.063Z] CLI Version:   15.16.0
+[debug] [2026-05-20T08:03:24.063Z] Platform:      darwin
+[debug] [2026-05-20T08:03:24.064Z] Node Version:  v23.11.0
+[debug] [2026-05-20T08:03:24.064Z] Time:          Wed May 20 2026 13:33:24 GMT+0530 (India Standard Time)
+[debug] [2026-05-20T08:03:24.064Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-05-20T08:03:24.065Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-05-20T08:03:25.073Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-05-20T08:03:25.073Z] > authorizing via signed-in user (development@gomogroup.com)
+[debug] [2026-05-20T08:03:25.073Z] [iam] checking project dev-timeline-tool for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]
+[debug] [2026-05-20T08:03:25.074Z] Checked if tokens are valid: false, expires at: 1778950368482
+[debug] [2026-05-20T08:03:25.074Z] Checked if tokens are valid: false, expires at: 1778950368482
+[debug] [2026-05-20T08:03:25.074Z] > refreshing access token with scopes: []
+[debug] [2026-05-20T08:03:25.075Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-05-20T08:03:25.075Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-05-20T08:03:25.292Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-05-20T08:03:25.292Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-05-20T08:03:25.312Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/dev-timeline-tool:testIamPermissions [none]
+[debug] [2026-05-20T08:03:25.312Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/dev-timeline-tool:testIamPermissions  x-goog-user-project=dev-timeline-tool
+[debug] [2026-05-20T08:03:25.312Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/dev-timeline-tool:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[debug] [2026-05-20T08:03:25.650Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-05-20T08:03:25.650Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-05-20T08:03:26.752Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/dev-timeline-tool:testIamPermissions 200
+[debug] [2026-05-20T08:03:26.752Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/dev-timeline-tool:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get"]}
+[info] 
+[info] === Deploying to 'dev-timeline-tool'...
+[info] 
+[info] i  deploying firestore 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[info] i  firestore: ensuring required API firestore.googleapis.com is enabled... 
+[debug] [2026-05-20T08:03:26.758Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:26.758Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:26.758Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/dev-timeline-tool/databases/(default) [none]
+[debug] [2026-05-20T08:03:28.626Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/dev-timeline-tool/databases/(default) 200
+[debug] [2026-05-20T08:03:28.626Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/dev-timeline-tool/databases/(default) {"name":"projects/dev-timeline-tool/databases/(default)","uid":"e3e91dec-1e9e-4fb6-a760-5cc8d1f9a493","createTime":"2026-05-04T07:19:21.276151Z","updateTime":"2026-05-04T07:19:21.276151Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2026-05-20T07:03:28.545244Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"realtimeUpdatesMode":"REALTIME_UPDATES_MODE_ENABLED","etag":"IPfE8tizx5QDMJnxxoeMn5QD"}
+[info] i  firestore: reading indexes from firestore.indexes.json... 
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2026-05-20T08:03:28.630Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:28.630Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:28.631Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool:test [none]
+[debug] [2026-05-20T08:03:28.631Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool:test [omitted]
+[debug] [2026-05-20T08:03:30.036Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool:test 200
+[debug] [2026-05-20T08:03:30.036Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool:test {}
+[info] ✔  cloud.firestore: rules file firestore.rules compiled successfully 
+[debug] [2026-05-20T08:03:30.039Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:30.039Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:30.039Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/releases pageSize=10&pageToken=
+[debug] [2026-05-20T08:03:31.458Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/releases 200
+[debug] [2026-05-20T08:03:31.459Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/releases {"releases":[{"name":"projects/dev-timeline-tool/releases/cloud.firestore","rulesetName":"projects/dev-timeline-tool/rulesets/7a844757-76a0-48f3-8713-33a6d2893bae","createTime":"2026-05-04T07:19:26.016605Z","updateTime":"2026-05-04T07:29:07.221539Z"}]}
+[debug] [2026-05-20T08:03:31.459Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:31.459Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:31.460Z] >>> [apiv2][query] GET https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/rulesets/7a844757-76a0-48f3-8713-33a6d2893bae [none]
+[debug] [2026-05-20T08:03:32.795Z] <<< [apiv2][status] GET https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/rulesets/7a844757-76a0-48f3-8713-33a6d2893bae 200
+[debug] [2026-05-20T08:03:32.795Z] <<< [apiv2][body] GET https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/rulesets/7a844757-76a0-48f3-8713-33a6d2893bae [omitted]
+[info] i  firestore: uploading rules firestore.rules... 
+[debug] [2026-05-20T08:03:32.797Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:32.797Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:32.797Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/rulesets [none]
+[debug] [2026-05-20T08:03:32.797Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/rulesets [omitted]
+[debug] [2026-05-20T08:03:34.224Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/rulesets 200
+[debug] [2026-05-20T08:03:34.224Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/rulesets {"name":"projects/dev-timeline-tool/rulesets/cc2eb9f9-1002-4f89-9748-e9dd83cb8e81","source":{"files":[{"content":"rules_version = '2';\n\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    function isSignedIn() {\n      return request.auth != null;\n    }\n\n    match /projects/{document=**} {\n      allow get: if true;\n      allow list, write: if isSignedIn();\n    }\n\n    match /app_users/{document=**} {\n      allow read, write: if isSignedIn();\n    }\n\n    match /team_members/{document=**} {\n      allow read, write: if isSignedIn();\n    }\n\n    match /logs/{document=**} {\n      allow read, write: if isSignedIn();\n    }\n\n    match /templates/{document=**} {\n      allow read, write: if isSignedIn();\n    }\n\n    match /workspace_meta/{document=**} {\n      allow read, write: if isSignedIn();\n    }\n  }\n}\n","name":"firestore.rules"}]},"createTime":"2026-05-20T08:03:34.126479Z","metadata":{"services":["cloud.firestore"]}}
+[debug] [2026-05-20T08:03:34.225Z] [rules] created ruleset projects/dev-timeline-tool/rulesets/cc2eb9f9-1002-4f89-9748-e9dd83cb8e81
+[debug] [2026-05-20T08:03:34.225Z] [rules] releasing cloud.firestore with ruleset projects/dev-timeline-tool/rulesets/cc2eb9f9-1002-4f89-9748-e9dd83cb8e81
+[debug] [2026-05-20T08:03:34.226Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:34.226Z] Checked if tokens are valid: true, expires at: 1779267804292
+[debug] [2026-05-20T08:03:34.227Z] >>> [apiv2][query] PATCH https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/releases/cloud.firestore [none]
+[debug] [2026-05-20T08:03:34.228Z] >>> [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/releases/cloud.firestore {"release":{"name":"projects/dev-timeline-tool/releases/cloud.firestore","rulesetName":"projects/dev-timeline-tool/rulesets/cc2eb9f9-1002-4f89-9748-e9dd83cb8e81"}}
+[debug] [2026-05-20T08:03:34.615Z] <<< [apiv2][status] PATCH https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/releases/cloud.firestore 200
+[debug] [2026-05-20T08:03:34.615Z] <<< [apiv2][body] PATCH https://firebaserules.googleapis.com/v1/projects/dev-timeline-tool/releases/cloud.firestore {"name":"projects/dev-timeline-tool/releases/cloud.firestore","rulesetName":"projects/dev-timeline-tool/rulesets/cc2eb9f9-1002-4f89-9748-e9dd83cb8e81","createTime":"2026-05-04T07:19:26.016605Z","updateTime":"2026-05-20T08:03:34.533872Z"}
+[debug] [2026-05-20T08:03:34.616Z] [rules] updated release projects/dev-timeline-tool/releases/cloud.firestore
+[info] ✔  firestore: released rules firestore.rules to cloud.firestore 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/dev-timeline-tool/overview

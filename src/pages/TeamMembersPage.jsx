@@ -3,6 +3,12 @@ import { useEffect, useMemo, useState } from "react";
 const inputClass =
   "form-field w-full rounded-[8px] border border-[#c5d0de] bg-white px-[14px] py-3 text-sm text-[#070c11] outline-none transition focus:border-[rgba(23,178,106,0.5)] focus:shadow-[0_0_0_4px_rgba(23,178,106,0.08)]";
 const departmentOptions = ["Design", "Development", "CSM", "Content", "SEO", "SEA"];
+const compareMembersByName = (firstMember, secondMember) =>
+  String(firstMember.name || firstMember.email || "").localeCompare(
+    String(secondMember.name || secondMember.email || ""),
+    undefined,
+    { sensitivity: "base" }
+  );
 
 function TeamMembersPage({
   teamMembers,
@@ -36,9 +42,12 @@ function TeamMembersPage({
           ? exMembers
           : teamMembers;
 
-    return selectedDepartment === "all"
-      ? tabMembers
-      : tabMembers.filter((member) => member.department === selectedDepartment);
+    const departmentMembers =
+      selectedDepartment === "all"
+        ? tabMembers
+        : tabMembers.filter((member) => member.department === selectedDepartment);
+
+    return [...departmentMembers].sort(compareMembersByName);
   }, [activeMemberTab, currentMembers, exMembers, selectedDepartment, teamMembers]);
 
   const handleSubmit = (event) => {

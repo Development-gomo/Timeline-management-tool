@@ -139,6 +139,24 @@ select.app-select {
   background: #f8fafc;
 }
 
+.gantt_grid_data .gantt_row.client-action-row,
+.gantt_grid_data .gantt_row.client-action-row:nth-child(even) {
+  background: #fff7d6;
+}
+
+.gantt_grid_data .gantt_row.client-action-row:hover {
+  background: #ffedb3;
+}
+
+.gantt_grid_data .gantt_row.client-action-row .gantt_cell {
+  color: #7a4b00;
+}
+
+.gantt_grid_data .gantt_row.client-action-row .gantt-cell-text,
+.gantt_grid_data .gantt_row.client-action-row .gantt-cell-text-strong {
+  color: #7a4b00;
+}
+
 .gantt_cell {
   border-color: #d7dfeb !important;
   border-left: none !important;

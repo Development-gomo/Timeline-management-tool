@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 
 const inputClass =
   "form-field w-full rounded-[8px] border border-[#c5d0de] bg-white px-[14px] py-3 text-sm text-[#070c11] outline-none transition focus:border-[rgba(23,178,106,0.5)] focus:shadow-[0_0_0_4px_rgba(23,178,106,0.08)]";
+const compareUsersByName = (firstUser, secondUser) =>
+  String(firstUser.name || firstUser.email || "").localeCompare(
+    String(secondUser.name || secondUser.email || ""),
+    undefined,
+    { sensitivity: "base" }
+  );
 
 function formatRoleLabel(role) {
   if (role === "super_admin") {
@@ -45,14 +51,14 @@ function UserManagementPage({
   const superAdmins = appUsers.filter((user) => user.role === "super_admin");
   const visibleUsers = useMemo(() => {
     if (activeUserTab === "active") {
-      return activeUsers;
+      return [...activeUsers].sort(compareUsersByName);
     }
 
     if (activeUserTab === "super_admins") {
-      return superAdmins;
+      return [...superAdmins].sort(compareUsersByName);
     }
 
-    return appUsers;
+    return [...appUsers].sort(compareUsersByName);
   }, [activeUserTab, activeUsers, appUsers, superAdmins]);
   const canCreateUsers = true;
   const roleOptions = useMemo(() => {

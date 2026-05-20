@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import DashboardLayout from "./components/DashboardLayout";
 import ProjectTimelinePage from "./pages/ProjectTimelinePage";
+import PublicProjectTimelineViewPage from "./pages/PublicProjectTimelineViewPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ProjectCreatePage from "./pages/ProjectCreatePage";
 import ProjectEditPage from "./pages/ProjectEditPage";
@@ -18,7 +19,11 @@ import MyProfilePage from "./pages/MyProfilePage";
 import LogsPage from "./pages/LogsPage";
 import TemplatePage from "./pages/TemplatePage";
 import LoginPage from "./pages/LoginPage";
-import { loadSharedAppState, saveSharedAppState } from "./lib/appStateStore";
+import {
+  loadPublicProjectTimelineState,
+  loadSharedAppState,
+  saveSharedAppState,
+} from "./lib/appStateStore";
 import {
   createManagedAuthUser,
   firebaseAuth,
@@ -868,6 +873,9 @@ function cloneTemplateForProject(template) {
 }
 
 function App() {
+  const isPublicTimelinePath =
+    typeof window !== "undefined" &&
+    /^\/projects\/[^/]+\/timeline\/view\/?$/.test(window.location.pathname);
   const defaultState = useMemo(
     () => ({
       projects: [],
@@ -973,7 +981,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!authUser) {
+    if (!authUser && !isPublicTimelinePath) {
       setProjects([]);
       setAppUsers([]);
       setTeamMembers([]);
@@ -990,7 +998,12 @@ function App() {
 
     async function hydrateState() {
       try {
-        const initialState = await loadSharedAppState(defaultState);
+        const initialState = isPublicTimelinePath && !authUser
+          ? await loadPublicProjectTimelineState(
+              window.location.pathname.match(/^\/projects\/([^/]+)\/timeline\/view\/?$/)?.[1],
+              defaultState
+            )
+          : await loadSharedAppState(defaultState);
         if (!isMounted) {
           return;
         }
@@ -1021,7 +1034,7 @@ function App() {
     return () => {
       isMounted = false;
     };
-  }, [authUser, defaultState]);
+  }, [authUser, defaultState, isPublicTimelinePath]);
 
   useEffect(() => {
     if (!authUser || !isHydrated) {
@@ -1738,7 +1751,7 @@ function App() {
     await signOut(firebaseAuth);
   };
 
-  if (!isAuthReady) {
+  if (!isAuthReady && !isPublicTimelinePath) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#f5f7fb] px-6">
         <div className="rounded-[8px] border border-[#d7dfeb] bg-white px-6 py-5 text-sm text-[#667085] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
@@ -1748,11 +1761,11 @@ function App() {
     );
   }
 
-  if (authUser && !isHydrated) {
+  if ((authUser || isPublicTimelinePath) && !isHydrated) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#f5f7fb] px-6">
         <div className="rounded-[8px] border border-[#d7dfeb] bg-white px-6 py-5 text-sm text-[#667085] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
-          Loading shared workspace...
+          Loading project timeline...
         </div>
       </div>
     );
@@ -1774,6 +1787,10 @@ function App() {
             />
           )
         }
+      />
+      <Route
+        path="/projects/:projectId/timeline/view"
+        element={<PublicProjectTimelineViewPage projects={projects} />}
       />
       <Route
         element={

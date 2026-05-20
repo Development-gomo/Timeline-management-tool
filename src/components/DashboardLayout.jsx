@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import logo from "../../images/Primary-logo.webp";
+import { getPublicTimelineProjectId } from "../lib/publicTimeline";
 
 const PAGE_META = {
   "/projects": {
@@ -309,6 +310,16 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
                 className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] no-underline transition duration-200 hover:-translate-y-px"
               >
                 Edit Project
+              </Link>
+            ) : null}
+            {matchedProject ? (
+              <Link
+                to={`/projects/${getPublicTimelineProjectId(matchedProject)}/timeline/view`}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+              >
+                View Timeline
               </Link>
             ) : null}
             {location.pathname === "/user-management" ? (

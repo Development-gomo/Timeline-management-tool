@@ -1,6 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
+import * as XLSX from "xlsx";
 import Gantt from "../components/Gantt";
+import { findProjectByPublicTimelineId } from "../lib/publicTimeline";
+import {
+  formatDateString,
+  normalizeStoredTask,
+  TASK_STATUS_LABELS,
+  TASK_STATUS_OPTIONS,
+} from "../lib/timeline";
 
 const statToneClasses = {
   green: "before:bg-[#17b26a]",
@@ -8,6 +16,310 @@ const statToneClasses = {
   amber: "before:bg-[#f79009]",
   red: "before:bg-[#f04438]",
 };
+const TIMELINE_SHEET_NAME = "Project Timeline";
+const TIMELINE_COLUMNS = {
+  taskId: "Task ID",
+  taskType: "Type of Task",
+  description: "Description",
+  ownerRole: "Owner / Department",
+  assignedMembers: "Assigned Team Members",
+  assignedMemberEmails: "Assigned Team Member Emails",
+  startDate: "Start Date",
+  endDate: "End Date",
+  status: "Status",
+  dependencies: "Task Dependencies",
+  dependencyIds: "Dependency Task IDs",
+};
+const statusLabelByValue = TASK_STATUS_LABELS;
+const statusValueByLabel = Object.fromEntries(
+  TASK_STATUS_OPTIONS.map((option) => [option.label.toLowerCase(), option.value])
+);
+
+function createImportId(prefix) {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return `${prefix}-${crypto.randomUUID()}`;
+  }
+
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function sanitizeFileName(value) {
+  return String(value || "project-timeline")
+    .trim()
+    .replace(/[^a-z0-9-_]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+}
+
+function splitCellList(value) {
+  return String(value || "")
+    .split(/\s*(?:\||;|\n|,)\s*/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeLookupText(value) {
+  return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function incrementCount(map, key) {
+  if (!key) {
+    return;
+  }
+
+  map.set(key, (map.get(key) || 0) + 1);
+}
+
+function setUniqueMapValue(map, key, value) {
+  if (!key) {
+    return;
+  }
+
+  if (map.has(key)) {
+    map.set(key, null);
+    return;
+  }
+
+  map.set(key, value);
+}
+
+function getTaskSignature(taskType, description) {
+  const descriptionKey = normalizeLookupText(description);
+  if (!descriptionKey) {
+    return "";
+  }
+
+  return `${normalizeLookupText(taskType) || "general"}::${descriptionKey}`;
+}
+
+function parseExcelDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  if (value instanceof Date) {
+    return formatDateString(value);
+  }
+
+  if (typeof value === "number") {
+    const parsedDate = XLSX.SSF.parse_date_code(value);
+    if (!parsedDate) {
+      return "";
+    }
+
+    return formatDateString(
+      `${parsedDate.y}-${String(parsedDate.m).padStart(2, "0")}-${String(parsedDate.d).padStart(2, "0")}`
+    );
+  }
+
+  return formatDateString(String(value).trim());
+}
+
+function formatExcelDate(value) {
+  const date = parseExcelDate(value);
+  if (!date) {
+    return "";
+  }
+
+  const parsedDate = new Date(`${date}T00:00:00`);
+  return parsedDate.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function resolveStatus(value, isPhase) {
+  const normalizedStatus = String(value || "").trim().toLowerCase();
+  if (!normalizedStatus) {
+    return isPhase ? "na" : "pending";
+  }
+
+  return (
+    TASK_STATUS_OPTIONS.find((option) => option.value === normalizedStatus)?.value ||
+    statusValueByLabel[normalizedStatus] ||
+    (isPhase ? "na" : "pending")
+  );
+}
+
+function resolveOwnerIds(row, assignees) {
+  const emails = splitCellList(row[TIMELINE_COLUMNS.assignedMemberEmails]).map((email) =>
+    email.toLowerCase()
+  );
+  const names = splitCellList(row[TIMELINE_COLUMNS.assignedMembers]).map((name) =>
+    name.toLowerCase()
+  );
+
+  return assignees
+    .filter((member) => {
+      const memberEmail = String(member.email || "").toLowerCase();
+      const memberName = String(member.name || "").toLowerCase();
+      return (
+        (memberEmail && emails.includes(memberEmail)) ||
+        (memberName && names.includes(memberName))
+      );
+    })
+    .map((member) => member.id);
+}
+
+function buildTimelineRows(project) {
+  const taskById = new Map(project.timeline.data.map((task) => [String(task.id), task]));
+  const dependencyIdsByTaskId = project.timeline.links.reduce((accumulator, link) => {
+    const targetId = String(link.target || "");
+    const sourceId = String(link.source || "");
+    if (!targetId || !sourceId) {
+      return accumulator;
+    }
+
+    accumulator.set(targetId, [...(accumulator.get(targetId) || []), sourceId]);
+    return accumulator;
+  }, new Map());
+
+  return project.timeline.data.map((task) => {
+    const dependencyIds = dependencyIdsByTaskId.get(String(task.id)) || [];
+    const dependencyNames = dependencyIds
+      .map((dependencyId) => taskById.get(String(dependencyId))?.text)
+      .filter(Boolean);
+    const assignedMembers = (task.ownerIds || [])
+      .map((ownerId) => project.teamMembers.find((member) => member.id === ownerId))
+      .filter(Boolean);
+
+    return {
+      [TIMELINE_COLUMNS.taskId]: task.id,
+      [TIMELINE_COLUMNS.taskType]: task.taskType || "General",
+      [TIMELINE_COLUMNS.description]: task.text || "",
+      [TIMELINE_COLUMNS.ownerRole]: task.ownerRole || "",
+      [TIMELINE_COLUMNS.assignedMembers]: assignedMembers
+        .map((member) => member.name)
+        .join(" | "),
+      [TIMELINE_COLUMNS.assignedMemberEmails]: assignedMembers
+        .map((member) => member.email)
+        .filter(Boolean)
+        .join(" | "),
+      [TIMELINE_COLUMNS.startDate]: formatExcelDate(task.start_date),
+      [TIMELINE_COLUMNS.endDate]: formatExcelDate(task.end_date),
+      [TIMELINE_COLUMNS.status]: statusLabelByValue[task.status] || "Pending",
+      [TIMELINE_COLUMNS.dependencies]: dependencyNames.join(" | "),
+      [TIMELINE_COLUMNS.dependencyIds]: dependencyIds.join(" | "),
+    };
+  });
+}
+
+function buildTimelineFromRows(rows, project) {
+  const usedIds = new Set();
+  const importedRows = rows.filter((row) =>
+    [
+      TIMELINE_COLUMNS.taskId,
+      TIMELINE_COLUMNS.taskType,
+      TIMELINE_COLUMNS.description,
+      TIMELINE_COLUMNS.ownerRole,
+      TIMELINE_COLUMNS.startDate,
+      TIMELINE_COLUMNS.endDate,
+      TIMELINE_COLUMNS.status,
+    ].some((column) => String(row[column] || "").trim())
+  );
+
+  const existingTasks = Array.isArray(project.timeline?.data) ? project.timeline.data : [];
+  const existingTaskIds = new Set(existingTasks.map((task) => String(task.id)));
+  const importedIdCounts = new Map();
+  const importedSignatureCounts = new Map();
+  const existingIdBySignature = new Map();
+
+  existingTasks.forEach((task) => {
+    setUniqueMapValue(
+      existingIdBySignature,
+      getTaskSignature(task.taskType || (task.isPhase ? "Phase" : "General"), task.text),
+      String(task.id)
+    );
+  });
+
+  importedRows.forEach((row) => {
+    incrementCount(importedIdCounts, String(row[TIMELINE_COLUMNS.taskId] || "").trim());
+    incrementCount(
+      importedSignatureCounts,
+      getTaskSignature(
+        String(row[TIMELINE_COLUMNS.taskType] || "").trim() || "General",
+        row[TIMELINE_COLUMNS.description]
+      )
+    );
+  });
+
+  const idByImportedId = new Map();
+  const nextData = importedRows.map((row, index) => {
+    const importedId = String(row[TIMELINE_COLUMNS.taskId] || "").trim();
+    const taskType = String(row[TIMELINE_COLUMNS.taskType] || "").trim() || "General";
+    const rowSignature = getTaskSignature(taskType, row[TIMELINE_COLUMNS.description]);
+    const matchedExistingId =
+      rowSignature && importedSignatureCounts.get(rowSignature) === 1
+        ? existingIdBySignature.get(rowSignature)
+        : null;
+    let nextId =
+      importedId && importedIdCounts.get(importedId) === 1 && existingTaskIds.has(importedId)
+        ? importedId
+        : matchedExistingId || createImportId("task");
+
+    if (usedIds.has(nextId)) {
+      nextId = createImportId("task");
+    }
+
+    usedIds.add(nextId);
+    if (importedId && importedIdCounts.get(importedId) === 1) {
+      idByImportedId.set(importedId, nextId);
+    }
+
+    const isPhase = taskType.toLowerCase() === "phase";
+
+    return normalizeStoredTask({
+      id: nextId,
+      taskType,
+      text:
+        String(row[TIMELINE_COLUMNS.description] || "").trim() ||
+        `Imported task ${index + 1}`,
+      ownerRole: String(row[TIMELINE_COLUMNS.ownerRole] || "").trim(),
+      ownerIds: resolveOwnerIds(row, project.teamMembers),
+      start_date: parseExcelDate(row[TIMELINE_COLUMNS.startDate]),
+      end_date: parseExcelDate(row[TIMELINE_COLUMNS.endDate]),
+      status: resolveStatus(row[TIMELINE_COLUMNS.status], isPhase),
+      isPhase,
+      open: true,
+    });
+  });
+
+  const idByDescription = new Map();
+  nextData.forEach((task) => {
+    setUniqueMapValue(idByDescription, normalizeLookupText(task.text), task.id);
+  });
+
+  const nextLinks = importedRows.flatMap((row, rowIndex) => {
+    const targetId = nextData[rowIndex]?.id;
+    if (!targetId) {
+      return [];
+    }
+
+    const dependencyIds = splitCellList(row[TIMELINE_COLUMNS.dependencyIds])
+      .map((dependencyId) => idByImportedId.get(dependencyId) || dependencyId)
+      .filter((dependencyId) => usedIds.has(dependencyId) && dependencyId !== targetId);
+    const dependencyNames = splitCellList(row[TIMELINE_COLUMNS.dependencies])
+      .map((dependencyName) => idByDescription.get(normalizeLookupText(dependencyName)))
+      .filter((dependencyId) => dependencyId && dependencyId !== targetId);
+    const uniqueDependencyIds = Array.from(new Set([...dependencyIds, ...dependencyNames]));
+
+    return uniqueDependencyIds.map((sourceId, dependencyIndex) => ({
+      id: createImportId("link"),
+      source: sourceId,
+      target: targetId,
+      type: "0",
+      importOrder: `${rowIndex + 1}-${dependencyIndex + 1}`,
+    }));
+  });
+
+  return {
+    data: nextData,
+    links: nextLinks.map(({ importOrder, ...link }) => link),
+    version: project.timeline.version,
+    isCustomized: true,
+  };
+}
 
 function StatCard({ label, value, hint, tone = "neutral" }) {
   return (
@@ -26,11 +338,15 @@ function StatCard({ label, value, hint, tone = "neutral" }) {
   );
 }
 
-function ProjectTimelinePage({ projects, onTimelineChange }) {
+function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
   const { projectId } = useParams();
-  const project = projects.find((item) => item.id === projectId) ?? null;
+  const project = readOnly
+    ? findProjectByPublicTimelineId(projects, projectId)
+    : projects.find((item) => item.id === projectId) ?? null;
+  const importInputRef = useRef(null);
   const [zoom, setZoom] = useState("week");
   const [viewMode, setViewMode] = useState("table");
+  const [importError, setImportError] = useState("");
 
   const stats = useMemo(() => {
     if (!project) {
@@ -51,8 +367,108 @@ function ProjectTimelinePage({ projects, onTimelineChange }) {
   }, [project]);
 
   if (!project) {
+    if (readOnly) {
+      return (
+        <div className="rounded-[8px] border border-[#d7dfeb] bg-white px-6 py-5 text-sm font-semibold text-[#667085] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
+          This project timeline is not available.
+        </div>
+      );
+    }
+
     return <Navigate to="/projects" replace />;
   }
+
+  const handleExportTimeline = () => {
+    const rows = buildTimelineRows(project);
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows, {
+      header: Object.values(TIMELINE_COLUMNS),
+    });
+
+    worksheet["!cols"] = [
+      { wch: 28 },
+      { wch: 22 },
+      { wch: 42 },
+      { wch: 24 },
+      { wch: 34 },
+      { wch: 36 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 14 },
+      { wch: 42 },
+      { wch: 42 },
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, TIMELINE_SHEET_NAME);
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet([
+        ["How to import"],
+        ["Update rows in the Project Timeline sheet, then import the same .xlsx file."],
+        ["Task ID values are optional. Valid existing IDs are preserved; blank, duplicate, or stale IDs are repaired during import."],
+        ["Dependency Task IDs are optional. Dependencies are rebuilt from valid IDs and matching Task Dependencies names."],
+        ["Use dates like 20 Apr 2026 for Start Date and End Date."],
+        ["Separate multiple team members or dependencies with |"],
+      ]),
+      "Import Guide"
+    );
+
+    XLSX.writeFile(
+      workbook,
+      `${sanitizeFileName(project.name)}-timeline.xlsx`,
+      { compression: true }
+    );
+  };
+
+  const handleImportClick = () => {
+    setImportError("");
+    importInputRef.current?.click();
+  };
+
+  const handleImportTimeline = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    setImportError("");
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const workbook = XLSX.read(await file.arrayBuffer(), {
+        cellDates: true,
+      });
+      const worksheet =
+        workbook.Sheets[TIMELINE_SHEET_NAME] ||
+        workbook.Sheets[workbook.SheetNames[0]];
+
+      if (!worksheet) {
+        throw new Error("No worksheet found in the selected Excel file.");
+      }
+
+      const rows = XLSX.utils.sheet_to_json(worksheet, {
+        defval: "",
+        raw: true,
+      });
+      const nextTimeline = buildTimelineFromRows(rows, project);
+
+      if (!nextTimeline.data.length) {
+        throw new Error("No timeline rows were found to import.");
+      }
+
+      const didConfirm = window.confirm(
+        `Import ${nextTimeline.data.length} tasks from this Excel file? This will replace the current project timeline.`
+      );
+
+      if (!didConfirm) {
+        return;
+      }
+
+      onTimelineChange(project.id, nextTimeline);
+    } catch (error) {
+      setImportError(error.message || "Unable to import this timeline.");
+    }
+  };
 
   return (
     <div>
@@ -84,6 +500,20 @@ function ProjectTimelinePage({ projects, onTimelineChange }) {
       </section>
 
       <section className="rounded-[8px] border border-[#d7dfeb] bg-white p-[18px] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
+        {!readOnly ? (
+          <input
+            ref={importInputRef}
+            type="file"
+            className="hidden"
+            accept=".xlsx,.xls"
+            onChange={handleImportTimeline}
+          />
+        ) : null}
+        {importError ? (
+          <div className="mb-4 rounded-[8px] border border-[#ffd5d2] bg-[#fff5f4] px-4 py-3 text-sm font-semibold text-[#b42318]">
+            {importError}
+          </div>
+        ) : null}
         <Gantt
           tasks={project.timeline}
           zoom={zoom}
@@ -91,7 +521,12 @@ function ProjectTimelinePage({ projects, onTimelineChange }) {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           assignees={project.teamMembers}
-          onTasksChange={(nextTimeline) => onTimelineChange(project.id, nextTimeline)}
+          onImportTimeline={readOnly ? null : handleImportClick}
+          onExportTimeline={readOnly ? null : handleExportTimeline}
+          onTasksChange={
+            readOnly ? null : (nextTimeline) => onTimelineChange(project.id, nextTimeline)
+          }
+          readOnly={readOnly}
         />
       </section>
     </div>

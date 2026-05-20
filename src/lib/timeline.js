@@ -151,8 +151,9 @@ export function toGanttTask(task) {
 
 export function fromGanttTask(task) {
   const { assigneeId, ...restTask } = task;
-  const startDate = formatDateString(task.start_date);
-  const endDate = formatDateString(task.end_date);
+  const isUnscheduled = Boolean(task.unscheduled);
+  const startDate = isUnscheduled ? "" : formatDateString(task.start_date);
+  const endDate = isUnscheduled ? "" : formatDateString(task.end_date);
   const storedEndDate = endDate ? addDays(endDate, -1) : "";
   const duration =
     startDate && storedEndDate
@@ -176,7 +177,7 @@ export function fromGanttTask(task) {
     duration,
     status,
     progress: progressFromStatus(status, task.progress),
-    unscheduled: !(startDate && storedEndDate),
+    unscheduled: isUnscheduled || !(startDate && storedEndDate),
   };
 }
 

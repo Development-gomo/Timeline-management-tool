@@ -6,6 +6,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { firebaseDb } from "./firebase";
+import { getProjectIdFromPublicTimelineId } from "./publicTimeline";
 
 const LOCAL_STORAGE_KEY = "webdev-project-management-state";
 const FIRESTORE_TIMEOUT_MS = 8000;
@@ -232,6 +233,54 @@ export async function loadSharedAppState(defaultState) {
   } catch {
     return localState;
   }
+}
+
+export async function loadPublicProjectTimelineState(publicProjectId, defaultState) {
+  const localState = readLocalAppState(defaultState);
+  const projectId = getProjectIdFromPublicTimelineId(publicProjectId);
+  const localProjectState = {
+    ...defaultState,
+    projects: localState.projects.filter((project) => String(project.id) === projectId),
+  };
+
+  if (!firebaseDb) {
+    return localProjectState;
+  }
+
+  let projectSnapshot;
+
+  try {
+    projectSnapshot = await withTimeout(
+      getDoc(doc(firebaseDb, COLLECTIONS.projects, projectId)),
+      FIRESTORE_TIMEOUT_MS,
+      "Firestore took too long to respond. Unable to load this public project timeline."
+    );
+  } catch {
+    return localProjectState;
+  }
+
+  if (!projectSnapshot.exists()) {
+    return localProjectState;
+  }
+
+  return normalizePersistedState(
+    {
+      projects: [
+        {
+          id: projectSnapshot.id,
+          ...projectSnapshot.data(),
+        },
+      ],
+      appUsers: [],
+      teamMembers: [],
+      logs: [],
+      template: defaultState.template,
+      __meta: {
+        updatedAt: "",
+      },
+    },
+    defaultState
+  );
 }
 
 export async function saveSharedAppState(state) {

@@ -26,7 +26,7 @@ const ZOOM_CONFIG = {
     ],
   },
   week: {
-    min_column_width: 72,
+    min_column_width: 132,
     scale_height: 72,
     scales: [
       { unit: "month", step: 1, format: "%F %Y" },
@@ -42,13 +42,18 @@ const ZOOM_CONFIG = {
     ],
   },
   month: {
-    min_column_width: 90,
+    min_column_width: 420,
     scale_height: 72,
     scales: [
       { unit: "year", step: 1, format: "%Y" },
       { unit: "month", step: 1, format: "%M" },
     ],
   },
+};
+
+const CHART_VISIBLE_COLUMNS = {
+  week: 9,
+  month: 2,
 };
 
 const inputClass =
@@ -91,6 +96,62 @@ function focusChartOnTasks(nextTasks) {
   gantt.showDate(scheduledTasks[0].start_date);
 }
 
+function getChartDateRange(nextTasks, zoomLevel) {
+  const scheduledTasks = nextTasks.data
+    .map((task) => toGanttTask(task))
+    .filter(
+      (task) =>
+        task.start_date instanceof Date &&
+        !Number.isNaN(task.start_date.getTime()) &&
+        task.end_date instanceof Date &&
+        !Number.isNaN(task.end_date.getTime())
+    );
+
+  if (!scheduledTasks.length) {
+    return null;
+  }
+
+  const firstStartDate = new Date(
+    Math.min(...scheduledTasks.map((task) => task.start_date.getTime()))
+  );
+  const lastEndDate = gantt.date.add(
+    new Date(Math.max(...scheduledTasks.map((task) => task.end_date.getTime()))),
+    -1,
+    "day"
+  );
+
+  if (zoomLevel === "month") {
+    const startDate = new Date(firstStartDate.getFullYear(), firstStartDate.getMonth(), 1);
+    const endDate = new Date(lastEndDate.getFullYear(), lastEndDate.getMonth() + 1, 1);
+    return { startDate, endDate };
+  }
+
+  const startDate = gantt.date.add(gantt.date.week_start(firstStartDate), -1, "week");
+  const endDate = gantt.date.add(gantt.date.week_start(lastEndDate), 1, "week");
+  return { startDate, endDate };
+}
+
+function applyChartDateRange(nextTasks, zoomLevel) {
+  const chartDateRange = getChartDateRange(nextTasks, zoomLevel);
+
+  gantt.config.start_date = chartDateRange?.startDate || null;
+  gantt.config.end_date = chartDateRange?.endDate || null;
+}
+
+function applyChartColumnWidth(container, zoomLevel) {
+  const visibleColumns = CHART_VISIBLE_COLUMNS[zoomLevel];
+  const fallbackWidth = ZOOM_CONFIG[zoomLevel]?.min_column_width || 90;
+
+  if (!visibleColumns) {
+    gantt.config.min_column_width = fallbackWidth;
+    return;
+  }
+
+  const containerWidth = container?.clientWidth || 1200;
+  const nextColumnWidth = Math.floor(containerWidth / visibleColumns);
+  gantt.config.min_column_width = Math.max(fallbackWidth, nextColumnWidth);
+}
+
 function mapTaskToEditor(task, dependencyIds = []) {
   const normalizedTask = fromGanttTask(task);
 
@@ -107,7 +168,13 @@ function mapTaskToEditor(task, dependencyIds = []) {
   };
 }
 
-function buildInlineDateCell(task, value, fieldLabel, actionKey, inlineDateEditor) {
+function buildInlineDateCell(task, value, fieldLabel, actionKey, inlineDateEditor, readOnly = false) {
+  if (readOnly) {
+    return `<div class="gantt-inline-cell">
+      <span class="gantt-cell-text">${value || "Not set"}</span>
+    </div>`;
+  }
+
   if (
     inlineDateEditor &&
     inlineDateEditor.taskId === String(task.id) &&
@@ -150,7 +217,10 @@ function Gantt({
   assignees,
   viewMode,
   onViewModeChange,
+  onImportTimeline,
+  onExportTimeline,
   onTasksChange,
+  readOnly = false,
 }) {
   const containerRef = useRef(null);
   const initializedRef = useRef(false);
@@ -159,8 +229,12 @@ function Gantt({
   const onTasksChangeRef = useRef(onTasksChange);
   const inlineDateEditorRef = useRef(null);
   const pendingScrollStateRef = useRef(null);
+  const lastTimelineSnapshotRef = useRef("");
   const [editorState, setEditorState] = useState(null);
   const [inlineDateEditor, setInlineDateEditor] = useState(null);
+  const ganttHeight = readOnly
+    ? Math.max(680, (Array.isArray(tasks?.data) ? tasks.data.length : 0) * 46 + 120)
+    : 680;
 
   useEffect(() => {
     if (!editorState) {
@@ -185,6 +259,10 @@ function Gantt({
   inlineDateEditorRef.current = inlineDateEditor;
 
   const openEditor = (taskId) => {
+    if (readOnly) {
+      return;
+    }
+
     if (!gantt.isTaskExists(taskId)) {
       return;
     }
@@ -214,7 +292,14 @@ function Gantt({
       pendingScrollStateRef.current = gantt.getScrollState();
     }
 
-    onTasksChangeRef.current(serializeTimelineFromGantt());
+    const nextTimeline = serializeTimelineFromGantt();
+    const nextTimelineSnapshot = JSON.stringify(nextTimeline);
+    if (nextTimelineSnapshot === lastTimelineSnapshotRef.current) {
+      return;
+    }
+
+    lastTimelineSnapshotRef.current = nextTimelineSnapshot;
+    onTasksChangeRef.current(nextTimeline);
   };
 
   const applyTaskUpdates = (taskId, updates) => {
@@ -257,7 +342,9 @@ function Gantt({
     }
 
     Object.assign(task, nextTask);
+    syncingRef.current = true;
     gantt.updateTask(taskId);
+    syncingRef.current = false;
     emitChange();
   };
 
@@ -317,7 +404,6 @@ function Gantt({
     }
 
     gantt.plugins({
-      auto_scheduling: true,
       click_drag: true,
       tooltip: true,
     });
@@ -328,12 +414,14 @@ function Gantt({
     gantt.config.grid_width = 920;
     gantt.config.row_height = 46;
     gantt.config.bar_height = 24;
-    gantt.config.drag_progress = true;
-    gantt.config.drag_resize = true;
-    gantt.config.drag_move = true;
-    gantt.config.auto_scheduling = true;
-    gantt.config.auto_scheduling_strict = true;
-    gantt.config.fit_tasks = true;
+    gantt.config.drag_progress = !readOnly;
+    gantt.config.drag_resize = !readOnly;
+    gantt.config.drag_move = !readOnly;
+    gantt.config.drag_links = !readOnly;
+    gantt.config.readonly = readOnly;
+    gantt.config.auto_scheduling = false;
+    gantt.config.auto_scheduling_strict = false;
+    gantt.config.fit_tasks = false;
     gantt.config.open_split_tasks = true;
     gantt.config.work_time = true;
     gantt.config.duration_unit = "day";
@@ -377,7 +465,8 @@ function Gantt({
             task.start_date ? formatDisplayDate(task.start_date) : "Not set",
             "start date",
             "start_date",
-            inlineDateEditorRef.current
+            inlineDateEditorRef.current,
+            readOnly
           ),
       },
       {
@@ -393,7 +482,8 @@ function Gantt({
               : "Not set",
             "end date",
             "end_date",
-            inlineDateEditorRef.current
+            inlineDateEditorRef.current,
+            readOnly
           ),
       },
       {
@@ -402,7 +492,9 @@ function Gantt({
         align: "center",
         width: 150,
         template: (task) =>
-          `<div class="gantt-inline-status">
+          readOnly
+            ? `<span class="gantt-status-badge gantt-status-${task.status || "pending"}">${TASK_STATUS_LABELS[task.status] || "Pending"}</span>`
+            : `<div class="gantt-inline-status">
             <select class="gantt-status-select gantt-status-${task.status || "pending"}" data-task-status="${task.id}" aria-label="Change task status">
               ${TASK_STATUS_OPTIONS.map(
                 (option) =>
@@ -439,7 +531,7 @@ function Gantt({
             </button>
           </div>`,
       },
-    ];
+    ].filter((column) => !readOnly || column.name !== "actions");
 
     gantt.templates.tooltip_text = (start, end, task) => {
       const displayEnd =
@@ -459,6 +551,10 @@ function Gantt({
     };
 
     gantt.templates.task_text = (start, end, task) => task.text;
+    gantt.templates.grid_row_class = (start, end, task) =>
+      String(task.ownerRole || "").trim().toLowerCase() === "client"
+        ? "client-action-row"
+        : "";
     gantt.templates.task_class = (start, end, task) => {
       if (task.unscheduled) {
         return "task-unscheduled";
@@ -478,12 +574,18 @@ function Gantt({
     gantt.templates.task_unscheduled_time = () => "Dates not scheduled";
 
     gantt.attachEvent("onBeforeLinkAdd", (id, link) => {
+      if (readOnly) {
+        return false;
+      }
+
       if (link.source === link.target) {
         return false;
       }
 
       return String(link.type) === String(gantt.config.links.finish_to_start);
     });
+
+    gantt.attachEvent("onBeforeTaskAutoSchedule", () => false);
 
     gantt.attachEvent("onTaskDblClick", (id) => {
       openEditor(id);
@@ -551,6 +653,10 @@ function Gantt({
     };
 
     const handleGridButtonClick = (event) => {
+      if (readOnly) {
+        return;
+      }
+
       const editButton = event.target.closest("[data-task-edit]");
       if (editButton) {
         const taskId = editButton.getAttribute("data-task-edit");
@@ -567,7 +673,6 @@ function Gantt({
         const taskId = deleteButton.getAttribute("data-task-delete");
         if (taskId && gantt.isTaskExists(taskId)) {
           gantt.deleteTask(taskId);
-          emitChange();
         }
         event.preventDefault();
         event.stopPropagation();
@@ -581,7 +686,6 @@ function Gantt({
           const parentId = gantt.getParent(taskId) || 0;
           const insertIndex = gantt.getTaskIndex(taskId) + 1;
           const newTaskId = gantt.addTask(createDraftTask(), parentId, insertIndex);
-          emitChange();
           openEditor(newTaskId);
         }
         event.preventDefault();
@@ -608,6 +712,10 @@ function Gantt({
     };
 
     const handleGridChange = (event) => {
+      if (readOnly) {
+        return;
+      }
+
       const inlineDateInput = event.target.closest("[data-task-inline-input]");
       if (inlineDateInput) {
         const taskId = inlineDateInput.getAttribute("data-task-inline-input");
@@ -647,6 +755,10 @@ function Gantt({
     };
 
     const handleGridKeyDown = (event) => {
+      if (readOnly) {
+        return;
+      }
+
       const dateInput = event.target.closest("[data-task-inline-input]");
       if (!dateInput) {
         return;
@@ -675,7 +787,7 @@ function Gantt({
       containerRef.current?.removeEventListener("focusout", handleGridFocusOut);
       containerRef.current?.removeEventListener("keydown", handleGridKeyDown);
     };
-  }, []);
+  }, [readOnly]);
 
   useEffect(() => {
     if (!initializedRef.current) {
@@ -713,6 +825,10 @@ function Gantt({
     }
 
     gantt.ext.zoom.setLevel(zoom);
+    applyChartColumnWidth(containerRef.current, zoom);
+    applyChartDateRange(tasks, zoom);
+    gantt.setSizes();
+    gantt.render();
   }, [zoom]);
 
   useEffect(() => {
@@ -724,13 +840,20 @@ function Gantt({
     gantt.config.show_grid = viewMode !== "chart";
     gantt.config.show_chart = viewMode !== "table";
     gantt.config.grid_width = viewMode === "table" ? Math.max(720, containerWidth - 2) : 920;
+    gantt.config.readonly = readOnly;
+    gantt.config.drag_progress = !readOnly;
+    gantt.config.drag_resize = !readOnly;
+    gantt.config.drag_move = !readOnly;
+    gantt.config.drag_links = !readOnly;
+    applyChartColumnWidth(containerRef.current, zoom);
+    applyChartDateRange(tasks, zoom);
     gantt.setSizes();
     gantt.render();
 
     if (viewMode === "chart") {
       focusChartOnTasks(tasks);
     }
-  }, [viewMode]);
+  }, [viewMode, readOnly]);
 
   useEffect(() => {
     if (!initializedRef.current) {
@@ -740,10 +863,13 @@ function Gantt({
     syncingRef.current = true;
     gantt.clearAll();
     const parsedTasks = tasks.data.map((task) => toGanttTask(task));
+    applyChartColumnWidth(containerRef.current, zoom);
+    applyChartDateRange(tasks, zoom);
     gantt.parse({
       data: parsedTasks,
       links: tasks.links,
     });
+    lastTimelineSnapshotRef.current = JSON.stringify(serializeTimelineFromGantt());
     gantt.setSizes();
 
     const pendingScrollState = pendingScrollStateRef.current;
@@ -769,12 +895,29 @@ function Gantt({
     }
 
     syncingRef.current = false;
-  }, [tasks, viewMode]);
+  }, [tasks, viewMode, zoom]);
+
+  useEffect(() => {
+    if (!initializedRef.current || !containerRef.current) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      applyChartColumnWidth(containerRef.current, zoom);
+      gantt.setSizes();
+      gantt.render();
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [zoom]);
 
   const handleAddTask = () => {
     const taskId = gantt.addTask(createDraftTask());
 
-    emitChange();
     openEditor(taskId);
   };
 
@@ -895,17 +1038,42 @@ function Gantt({
           ))}
         </div>
 
-        <button
-          type="button"
-            className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
-            onClick={handleAddTask}
+        {onImportTimeline && !readOnly ? (
+          <button
+            type="button"
+            className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+            onClick={onImportTimeline}
           >
-            Add Task
+            Import Excel
           </button>
+        ) : null}
+
+        {onExportTimeline && !readOnly ? (
+          <button
+            type="button"
+            className="rounded-[8px] border border-[#17b26a] bg-white px-4 py-2.5 text-sm font-semibold text-[#16895a] transition duration-200 hover:-translate-y-px"
+            onClick={onExportTimeline}
+          >
+            Export Excel
+          </button>
+        ) : null}
+
+        {!readOnly ? (
+          <button
+            type="button"
+              className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+              onClick={handleAddTask}
+            >
+              Add Task
+            </button>
+        ) : null}
         </div>
 
-        <div className="min-h-[680px] overflow-visible bg-white shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
-          <div ref={containerRef} className="h-[680px] w-full" />
+        <div
+          className="overflow-visible bg-white shadow-[0_8px_24px_rgba(16,24,40,0.06)]"
+          style={{ minHeight: `${ganttHeight}px` }}
+        >
+          <div ref={containerRef} className="w-full" style={{ height: `${ganttHeight}px` }} />
         </div>
       </div>
 
