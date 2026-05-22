@@ -56,7 +56,7 @@ function LoginPage({
             <p className="mt-8 mb-3 text-[0.78rem] font-extrabold uppercase tracking-[0.12em] text-[#17b26a]">
               Website Delivery Workspace
             </p>
-            <h1 className="m-0 max-w-[420px] text-[32px] leading-[1.15] font-semibold text-[#070c11]">
+            <h1 className="m-0 max-w-[420px] text-[32px] leading-[1.15] font-bold text-[#070c11]">
               Manage projects, timelines, and delivery accountability in one place.
             </h1>
             <p className="mt-5 max-w-[460px] text-[15px] leading-7 text-[#667085]">
@@ -66,7 +66,7 @@ function LoginPage({
           </div>
 
           <div className="rounded-[12px] border border-[#d7dfeb] bg-white/80 p-5 backdrop-blur">
-            <div className="mb-2 text-sm font-semibold text-[#070c11]">Protected workspace</div>
+            <div className="mb-2 text-sm font-bold text-[#070c11]">Protected workspace</div>
             <div className="text-sm leading-6 text-[#667085]">
               Only authenticated team members can view and edit this tool.
             </div>
@@ -79,7 +79,7 @@ function LoginPage({
             <p className="mb-2 text-[0.78rem] font-extrabold uppercase tracking-[0.12em] text-[#17b26a]">
               Sign in
             </p>
-            <h2 className="m-0 text-[20px] leading-[1.25] font-semibold text-[#070c11]">
+            <h2 className="m-0 text-[20px] leading-[1.25] font-bold text-[#070c11]">
               Access the project workspace
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#667085]">
@@ -98,7 +98,7 @@ function LoginPage({
             ) : null}
 
             <form className="mt-8 grid gap-4" onSubmit={handleSubmit}>
-              <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <label className="grid gap-2 text-sm font-bold text-[#475467]">
                 Email
                 <input
                   className={inputClass}
@@ -111,7 +111,7 @@ function LoginPage({
                 />
               </label>
 
-              <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <label className="grid gap-2 text-sm font-bold text-[#475467]">
                 Password
                 <input
                   className={inputClass}
@@ -132,7 +132,7 @@ function LoginPage({
 
               <button
                 type="submit"
-                className="mt-2 inline-flex items-center justify-center rounded-[8px] bg-[#17b26a] px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                className="mt-2 inline-flex items-center justify-center rounded-[8px] bg-[#17b26a] px-4 py-3 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Signing in..." : "Login"}

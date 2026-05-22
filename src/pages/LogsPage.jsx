@@ -8,8 +8,8 @@ function StatCard({ label, value, hint, accentClass }) {
     <article
       className={`relative overflow-hidden rounded-[8px] border border-[#d7dfeb] bg-white px-5 py-[18px] shadow-[0_8px_24px_rgba(16,24,40,0.06)] before:absolute before:inset-x-0 before:top-0 before:h-1 before:content-[''] ${accentClass}`}
     >
-      <p className="mb-3.5 text-sm font-semibold text-[#475467]">{label}</p>
-      <strong className="mb-1 block text-[36px] leading-none font-semibold text-[#070c11]">
+      <p className="mb-3.5 text-sm font-bold text-[#475467]">{label}</p>
+      <strong className="mb-1 block font-Merriweather text-[36px] leading-none font-bold text-[#070c11]">
         {value}
       </strong>
       <span className="text-sm text-[#667085]">{hint}</span>
@@ -325,7 +325,7 @@ function LogsPage({
 
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-[8px] border border-[#c5d0de] bg-white px-4 py-3 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+              className="inline-flex items-center justify-center rounded-[8px] border border-[#c5d0de] bg-white px-4 py-3 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
               onClick={resetFilters}
             >
               Reset Filters
@@ -378,10 +378,10 @@ function LogsPage({
                       onMouseMove={moveTooltip}
                       onMouseLeave={hideTooltip}
                     >
-                      <div className="flex items-center px-4 py-2 text-[14px] font-semibold text-[#070c11]">
+                      <div className="flex items-center px-4 py-2 text-[14px] font-bold text-[#070c11]">
                         <span className="truncate">{log.projectName || "Workspace"}</span>
                       </div>
-                      <div className="flex items-center px-4 py-2 text-[14px] font-semibold text-[#070c11]">
+                      <div className="flex items-center px-4 py-2 text-[14px] font-bold text-[#070c11]">
                         <span className="truncate">{log.actionLabel}</span>
                       </div>
                       <div className="flex items-center px-4 py-2 text-[14px] text-[#475467]">
@@ -390,7 +390,7 @@ function LogsPage({
                             {primaryDetail.entry?.task || "No task detail"}
                           </div>
                           {primaryDetail.remainingCount > 0 ? (
-                            <div className="mt-1 text-xs font-semibold text-[#17b26a]">
+                            <div className="mt-1 text-xs font-bold text-[#17b26a]">
                               +{primaryDetail.remainingCount} more change
                               {primaryDetail.remainingCount > 1 ? "s" : ""}
                             </div>
@@ -412,7 +412,7 @@ function LogsPage({
                           {displayAuditValue(primaryDetail.entry?.to || "Updated")}
                         </span>
                       </div>
-                      <div className="flex items-center px-4 py-2 text-[14px] font-semibold text-[#070c11]">
+                      <div className="flex items-center px-4 py-2 text-[14px] font-bold text-[#070c11]">
                         <span className="truncate">{resolveUserName(log)}</span>
                       </div>
                       <div className="flex items-center px-4 py-2 text-[14px] text-[#475467]">
@@ -482,7 +482,7 @@ function LogsPage({
                       <div className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#667085]">
                         Project
                       </div>
-                      <div className="text-[14px] font-semibold text-[#070c11]">
+                      <div className="text-[14px] font-bold text-[#070c11]">
                         {log.projectName || "Workspace"}
                       </div>
                     </div>
@@ -490,7 +490,7 @@ function LogsPage({
                       <div className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#667085]">
                         Category
                       </div>
-                      <div className="text-[14px] font-semibold text-[#070c11]">
+                      <div className="text-[14px] font-bold text-[#070c11]">
                         {log.actionLabel}
                       </div>
                     </div>
@@ -530,7 +530,7 @@ function LogsPage({
                       <div className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#667085]">
                         Owner
                       </div>
-                      <div className="text-[14px] font-semibold text-[#070c11]">
+                      <div className="text-[14px] font-bold text-[#070c11]">
                         {resolveUserName(log)}
                       </div>
                     </div>
@@ -586,7 +586,7 @@ function LogsPage({
                       </div>
                     ) : null}
                     {primaryDetail.remainingCount > 0 || log.repeatCount > 1 ? (
-                      <div className="text-xs font-semibold text-[#17b26a]">
+                      <div className="text-xs font-bold text-[#17b26a]">
                         {primaryDetail.remainingCount > 0
                           ? `+${primaryDetail.remainingCount} more change${primaryDetail.remainingCount > 1 ? "s" : ""}`
                           : null}
@@ -619,7 +619,7 @@ function LogsPage({
           >
             <div className="flex items-start justify-between gap-4 border-b border-[#d7dfeb] px-6 py-4">
               <div>
-                <h3 className="m-0 text-[18px] leading-[1.25] font-semibold text-[#070c11]">
+                <h3 className="m-0 text-[18px] leading-[1.25] font-bold text-[#070c11]">
                   {selectedLog.actionLabel}
                 </h3>
                 <p className="mt-1 text-sm text-[#667085]">
@@ -653,7 +653,7 @@ function LogsPage({
                     className="rounded-[8px] border border-[#d7dfeb] bg-[#fcfdff] p-[16px]"
                   >
                     <div className="mb-3 flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
-                      <div className="text-sm font-semibold text-[#070c11]">
+                      <div className="text-sm font-bold text-[#070c11]">
                         {historyItem.summary || "Detailed change log"}
                       </div>
                       <div className="text-sm text-[#667085]">
@@ -679,7 +679,7 @@ function LogsPage({
                               key={`${historyItem.id || historyIndex}-${entryIndex}`}
                               className="grid grid-cols-[190px_160px_minmax(0,1fr)_minmax(0,1fr)]"
                             >
-                              <div className="px-4 py-3 text-[14px] font-semibold text-[#070c11]">
+                              <div className="px-4 py-3 text-[14px] font-bold text-[#070c11]">
                                 {entry.task}
                               </div>
                               <div className="px-4 py-3 text-[14px] text-[#475467]">

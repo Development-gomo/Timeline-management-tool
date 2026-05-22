@@ -731,6 +731,34 @@ function getCurrentUserRole(authUser, appUsers) {
   return resolveAppUserRole(matchedUser);
 }
 
+function formatNameFromEmail(email) {
+  const emailName = String(email || "").split("@")[0];
+  if (!emailName) {
+    return "";
+  }
+
+  return emailName
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+}
+
+function getCurrentUserProfile(authUser, appUser) {
+  const email = String(authUser?.email || appUser?.email || "").toLowerCase();
+  const name =
+    String(appUser?.name || "").trim() ||
+    String(authUser?.displayName || "").trim() ||
+    formatNameFromEmail(email);
+  const firstName = name.split(/\s+/).filter(Boolean)[0] || formatNameFromEmail(email);
+
+  return {
+    name,
+    email,
+    firstName,
+  };
+}
+
 function canAccessTool(authUser, appUsers) {
   const authEmail = String(authUser?.email || "").toLowerCase();
   if (!authEmail) {
@@ -904,6 +932,10 @@ function App() {
   const currentUserRole = useMemo(
     () => getCurrentUserRole(authUser, appUsers),
     [authUser, appUsers]
+  );
+  const currentUserProfile = useMemo(
+    () => getCurrentUserProfile(authUser, currentAppUser),
+    [authUser, currentAppUser]
   );
   const isSuperAdmin = currentUserRole === "super_admin";
 
@@ -1798,6 +1830,7 @@ function App() {
             <DashboardLayout
               loadError={loadError}
               projects={projects}
+              currentUserProfile={currentUserProfile}
               currentUserRole={currentUserRole}
               onLogout={handleLogout}
             />
@@ -1867,7 +1900,7 @@ function App() {
           path="/my-profile"
           element={
             <MyProfilePage
-              currentUserEmail={String(authUser?.email || "").toLowerCase()}
+              currentUserProfile={currentUserProfile}
               onUpdatePassword={handleUpdateCurrentPassword}
             />
           }

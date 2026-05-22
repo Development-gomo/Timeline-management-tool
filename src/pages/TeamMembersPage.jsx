@@ -137,8 +137,8 @@ function TeamMembersPage({
                 type="button"
                 className={
                   activeMemberTab === tab.id
-                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-semibold text-[#17b26a] transition duration-200 hover:-translate-y-px"
-                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-semibold text-[#475467] transition duration-200 hover:-translate-y-px"
+                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-bold text-[#17b26a] transition duration-200 hover:-translate-y-px"
+                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-bold text-[#475467] transition duration-200 hover:-translate-y-px"
                 }
                 onClick={() => setActiveMemberTab(tab.id)}
               >
@@ -195,7 +195,7 @@ function TeamMembersPage({
                         }
                       />
                     ) : (
-                      <span className="font-semibold">{member.name}</span>
+                      <span className="font-bold">{member.name}</span>
                     )}
                   </div>
 
@@ -284,14 +284,14 @@ function TeamMembersPage({
                       <>
                         <button
                           type="button"
-                          className="rounded-[8px] bg-[#17b26a] px-3 py-2 text-xs font-semibold text-white transition duration-200 hover:-translate-y-px"
+                          className="rounded-[8px] bg-[#17b26a] px-3 py-2 text-xs font-bold text-white transition duration-200 hover:-translate-y-px"
                           onClick={() => saveEditingMember(member)}
                         >
                           Save
                         </button>
                         <button
                           type="button"
-                          className="rounded-[8px] border border-[#c5d0de] bg-white px-3 py-2 text-xs font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+                          className="rounded-[8px] border border-[#c5d0de] bg-white px-3 py-2 text-xs font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
                           onClick={cancelEditingMember}
                         >
                           Cancel
@@ -328,7 +328,7 @@ function TeamMembersPage({
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-[rgba(7,12,17,0.22)] px-4 py-6">
           <div className="w-full max-w-[560px] overflow-hidden rounded-[8px] bg-white shadow-[0_24px_64px_rgba(16,24,40,0.24)]">
             <div className="border-b border-[#d7dfeb] px-6 py-4">
-              <h3 className="m-0 text-[18px] leading-[1.25] font-semibold text-[#070c11]">
+              <h3 className="m-0 text-[18px] leading-[1.25] font-bold text-[#070c11]">
                 Add Team Member
               </h3>
             </div>
@@ -381,14 +381,14 @@ function TeamMembersPage({
               <div className="mt-2 flex justify-end gap-3 border-t border-[#d7dfeb] pt-4">
                 <button
                   type="button"
-                  className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+                  className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
                   onClick={() => setIsAddModalOpen(false)}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                  className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                 >
                   Add Team Member
                 </button>

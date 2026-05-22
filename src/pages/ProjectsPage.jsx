@@ -16,8 +16,8 @@ function StatCard({ label, value, hint, tone = "neutral" }) {
         statToneClasses[tone] || "before:bg-[#d0d5dd]",
       ].join(" ")}
     >
-      <p className="mb-3.5 text-sm font-semibold text-[#475467]">{label}</p>
-      <strong className="mb-1 block text-[36px] leading-none font-semibold text-[#070c11]">
+      <p className="mb-3.5 text-sm font-bold text-[#475467]">{label}</p>
+      <strong className="mb-1 block font-Merriweather text-[36px] leading-none font-bold text-[#070c11]">
         {value}
       </strong>
       <span className="text-sm text-[#667085]">{hint}</span>
@@ -72,7 +72,7 @@ function ProjectsPage({ projects }) {
             <p className="mb-2 text-[0.78rem] font-extrabold uppercase tracking-[0.12em] text-[#17b26a]">
               Project Grid
             </p>
-            <h2 className="m-0 text-[18px] leading-[1.25] font-semibold text-[#070c11]">
+            <h2 className="m-0 text-[18px] leading-[1.25] font-bold text-[#070c11]">
               All created projects
             </h2>
           </div>
@@ -91,8 +91,8 @@ function ProjectsPage({ projects }) {
                   type="button"
                   className={
                     selectedFilter === filter.id
-                      ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-semibold text-[#17b26a] transition duration-200 hover:-translate-y-px"
-                      : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-semibold text-[#475467] transition duration-200 hover:-translate-y-px"
+                      ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-bold text-[#17b26a] transition duration-200 hover:-translate-y-px"
+                      : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-bold text-[#475467] transition duration-200 hover:-translate-y-px"
                   }
                   onClick={() => setSelectedFilter(filter.id)}
                 >
@@ -103,7 +103,7 @@ function ProjectsPage({ projects }) {
 
             <Link
               to="/projects/new"
-              className="inline-flex items-center justify-center rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+              className="inline-flex items-center justify-center rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white no-underline shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
             >
               Add New Project
             </Link>
@@ -160,7 +160,7 @@ function ProjectsPage({ projects }) {
                 </div>
 
                 <div>
-                  <h3 className="mb-2.5 text-[20px] leading-[1.25] font-semibold text-[#070c11]">
+                  <h3 className="mb-2.5 text-[20px] leading-[1.25] font-bold text-[#070c11]">
                     {project.name}
                   </h3>
                   <p className="m-0 text-[0.95rem] text-[#667085]">
@@ -183,7 +183,7 @@ function ProjectsPage({ projects }) {
                   </div>
                   <Link
                     to={`/projects/${project.id}/timeline`}
-                    className="inline-flex items-center justify-center rounded-[8px] border border-[#d7dfeb] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] no-underline transition duration-200 hover:-translate-y-px hover:border-[rgba(23,178,106,0.3)] hover:text-[#17b26a]"
+                    className="inline-flex items-center justify-center rounded-[8px] border border-[#d7dfeb] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] no-underline transition duration-200 hover:-translate-y-px hover:border-[rgba(23,178,106,0.3)] hover:text-[#17b26a]"
                   >
                     View Timeline
                   </Link>

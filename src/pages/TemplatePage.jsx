@@ -19,8 +19,8 @@ function StatCard({ label, value, hint, tone = "neutral" }) {
         statToneClasses[tone] || "before:bg-[#d0d5dd]",
       ].join(" ")}
     >
-      <p className="mb-3.5 text-sm font-semibold text-[#475467]">{label}</p>
-      <strong className="mb-1 block text-[36px] leading-none font-semibold text-[#070c11]">
+      <p className="mb-3.5 text-sm font-bold text-[#475467]">{label}</p>
+      <strong className="mb-1 block font-Merriweather text-[36px] leading-none font-bold text-[#070c11]">
         {value}
       </strong>
       <span className="text-sm text-[#667085]">{hint}</span>
@@ -77,7 +77,7 @@ function TemplatePage({
           {activeTab === "tasks" ? (
             <>
               <div className="mb-3.5 flex items-center justify-between gap-4">
-                <h3 className="text-lg font-semibold text-[#070c11]">Template Tasks</h3>
+                <h3 className="text-lg font-bold text-[#070c11]">Template Tasks</h3>
                 <div className="flex flex-wrap items-center justify-end gap-3">
                   <div
                     className="inline-flex items-center gap-1 rounded-[8px] border border-[#d7dfeb] bg-white p-[5px]"
@@ -92,8 +92,8 @@ function TemplatePage({
                         type="button"
                         className={
                           activeTab === tab.id
-                            ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-semibold text-[#17b26a] transition duration-200 hover:-translate-y-px"
-                            : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-semibold text-[#475467] transition duration-200 hover:-translate-y-px"
+                            ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-bold text-[#17b26a] transition duration-200 hover:-translate-y-px"
+                            : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-bold text-[#475467] transition duration-200 hover:-translate-y-px"
                         }
                         onClick={() => setActiveTab(tab.id)}
                       >
@@ -104,7 +104,7 @@ function TemplatePage({
 
                   <button
                     type="button"
-                    className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                    className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                     onClick={onAddTemplateTask}
                   >
                     Add Task
@@ -273,7 +273,7 @@ function TemplatePage({
           ) : (
             <>
               <div className="mb-3.5 flex items-center justify-between gap-4">
-                <h3 className="text-lg font-semibold text-[#070c11]">Template Dependencies</h3>
+                <h3 className="text-lg font-bold text-[#070c11]">Template Dependencies</h3>
                 <div className="flex flex-wrap items-center justify-end gap-3">
                   <div
                     className="inline-flex items-center gap-1 rounded-[8px] border border-[#d7dfeb] bg-white p-[5px]"
@@ -288,8 +288,8 @@ function TemplatePage({
                         type="button"
                         className={
                           activeTab === tab.id
-                            ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-semibold text-[#17b26a] transition duration-200 hover:-translate-y-px"
-                            : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-semibold text-[#475467] transition duration-200 hover:-translate-y-px"
+                            ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-bold text-[#17b26a] transition duration-200 hover:-translate-y-px"
+                            : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-bold text-[#475467] transition duration-200 hover:-translate-y-px"
                         }
                         onClick={() => setActiveTab(tab.id)}
                       >
@@ -300,7 +300,7 @@ function TemplatePage({
 
                   <button
                     type="button"
-                    className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                    className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                     onClick={onAddTemplateLink}
                   >
                     Add Dependency

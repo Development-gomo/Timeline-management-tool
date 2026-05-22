@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   color: #070c11;
   background: #f5f7fb;
   line-height: 1.5;
-  font-weight: 500;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -24,9 +26,33 @@ body,
 }
 
 body {
+  font-family: "Nunito Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
   height: 100vh;
   overflow: hidden;
   background: #f5f7fb;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Merriweather", serif;
+  font-weight: 400 !important;
+  text-transform: initial !important;
+  letter-spacing: normal !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+}
+
+.font-Merriweather {
+  font-family: "Merriweather", serif;
 }
 
 button,

@@ -417,8 +417,8 @@ function StatCard({ label, value, hint, tone = "neutral" }) {
         statToneClasses[tone] || "before:bg-[#d0d5dd]",
       ].join(" ")}
     >
-      <p className="mb-3.5 text-sm font-semibold text-[#475467]">{label}</p>
-      <strong className="mb-1 block text-[36px] leading-none font-semibold text-[#070c11]">
+      <p className="mb-3.5 text-sm font-bold text-[#475467]">{label}</p>
+      <strong className="mb-1 block font-Merriweather text-[36px] leading-none font-bold text-[#070c11]">
         {value}
       </strong>
       <span className="text-sm text-[#667085]">{hint}</span>
@@ -457,7 +457,7 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
   if (!project) {
     if (readOnly) {
       return (
-        <div className="rounded-[8px] border border-[#d7dfeb] bg-white px-6 py-5 text-sm font-semibold text-[#667085] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
+        <div className="rounded-[8px] border border-[#d7dfeb] bg-white px-6 py-5 text-sm font-bold text-[#667085] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
           This project timeline is not available.
         </div>
       );
@@ -599,7 +599,7 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
           />
         ) : null}
         {importError ? (
-          <div className="mb-4 rounded-[8px] border border-[#ffd5d2] bg-[#fff5f4] px-4 py-3 text-sm font-semibold text-[#b42318]">
+          <div className="mb-4 rounded-[8px] border border-[#ffd5d2] bg-[#fff5f4] px-4 py-3 text-sm font-bold text-[#b42318]">
             {importError}
           </div>
         ) : null}

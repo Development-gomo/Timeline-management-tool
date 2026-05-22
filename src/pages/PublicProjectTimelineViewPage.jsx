@@ -13,7 +13,7 @@ function PublicProjectTimelineViewPage({ projects }) {
         <div className="flex min-w-0 items-center gap-4">
           <img className="h-auto w-[142px] shrink-0" src={logo} alt="Gomo Group" />
           <div className="min-w-0">
-            <h1 className="m-0 truncate text-[20px] leading-[1.25] font-semibold text-[#070c11]">
+            <h1 className="m-0 truncate text-[20px] leading-[1.25] font-bold text-[#070c11]">
               {project?.name || "Project"} Timeline
             </h1>
             <p className="mt-1 text-sm text-[#667085]">

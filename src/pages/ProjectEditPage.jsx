@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-const labelClass = "grid gap-2 text-sm font-semibold text-[#475467]";
+const labelClass = "grid gap-2 text-sm font-bold text-[#475467]";
 const inputClass =
   "form-field w-full rounded-[8px] border border-[#c5d0de] bg-white px-[14px] py-3 text-sm text-[#070c11] outline-none transition focus:border-[rgba(23,178,106,0.5)] focus:shadow-[0_0_0_4px_rgba(23,178,106,0.08)]";
 
@@ -110,7 +110,7 @@ function ProjectEditPage({
       <section className="overflow-hidden rounded-[8px] border border-[#d7dfeb] bg-white shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
         <form className="grid" onSubmit={handleSubmit}>
           <div className="rounded-[8px] bg-white p-[18px]">
-            <h3 className="mb-3.5 text-lg font-semibold text-[#070c11]">
+            <h3 className="mb-3.5 text-lg font-bold text-[#070c11]">
               Project Information
             </h3>
 
@@ -171,7 +171,7 @@ function ProjectEditPage({
 
           <div className="rounded-[8px] border-t border-[#d7dfeb] bg-white p-[18px]">
             <div className="mb-3.5 flex items-center justify-between gap-4">
-              <h3 className="text-lg font-semibold text-[#070c11]">Team Members</h3>
+              <h3 className="text-lg font-bold text-[#070c11]">Team Members</h3>
               <span className="inline-flex items-center justify-center rounded-[8px] bg-[#f2f4f7] px-3 py-2 text-[0.84rem] font-bold text-[#475467]">
                 {draftMembers.length} attached
               </span>
@@ -195,7 +195,7 @@ function ProjectEditPage({
               </select>
               <button
                 type="button"
-                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                 onClick={handleAddDraftMember}
               >
                 Add Member
@@ -209,7 +209,7 @@ function ProjectEditPage({
                     key={member.id}
                     className="grid grid-cols-1 items-center gap-2 rounded-[8px] border border-[#d7dfeb] bg-[#fcfdff] p-[14px] xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.85fr)_180px_auto]"
                   >
-                    <div className="text-sm font-semibold text-[#070c11]">{member.name}</div>
+                    <div className="text-sm font-bold text-[#070c11]">{member.name}</div>
                     <div className="text-sm text-[#667085]">{member.email || "No email"}</div>
                     <div className="text-sm text-[#667085]">
                       {member.department || "No department"}
@@ -219,7 +219,7 @@ function ProjectEditPage({
                     </div>
                     <button
                       type="button"
-                      className="rounded-[8px] border border-[#ffd5d2] bg-white px-4 py-2.5 text-sm font-semibold text-[#f04438] transition duration-200 hover:-translate-y-px"
+                      className="rounded-[8px] border border-[#ffd5d2] bg-white px-4 py-2.5 text-sm font-bold text-[#f04438] transition duration-200 hover:-translate-y-px"
                       onClick={() => handleDeleteMember(member.id)}
                     >
                       Remove
@@ -239,7 +239,7 @@ function ProjectEditPage({
             {canDeleteProject ? (
               <button
                 type="button"
-                className="mr-auto rounded-[8px] border border-[#ffd5d2] bg-white px-4 py-2.5 text-sm font-semibold text-[#f04438] transition duration-200 hover:-translate-y-px"
+                className="mr-auto rounded-[8px] border border-[#ffd5d2] bg-white px-4 py-2.5 text-sm font-bold text-[#f04438] transition duration-200 hover:-translate-y-px"
                 onClick={() => setIsDeleteConfirmOpen(true)}
               >
                 Delete Project
@@ -247,14 +247,14 @@ function ProjectEditPage({
             ) : null}
             <button
               type="button"
-              className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+              className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
               onClick={() => navigate("/projects")}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+              className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
             >
               Save Changes
             </button>
@@ -266,7 +266,7 @@ function ProjectEditPage({
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-[rgba(7,12,17,0.22)] px-4 py-6">
           <div className="w-full max-w-[520px] overflow-hidden rounded-[8px] bg-white shadow-[0_24px_64px_rgba(16,24,40,0.24)]">
             <div className="border-b border-[#d7dfeb] px-6 py-4">
-              <h3 className="m-0 text-[18px] leading-[1.25] font-semibold text-[#070c11]">
+              <h3 className="m-0 text-[18px] leading-[1.25] font-bold text-[#070c11]">
                 Delete Project
               </h3>
             </div>
@@ -279,14 +279,14 @@ function ProjectEditPage({
             <div className="flex justify-end gap-3 border-t border-[#d7dfeb] bg-[#fcfdff] px-6 py-4">
               <button
                 type="button"
-                className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
                 onClick={() => setIsDeleteConfirmOpen(false)}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="rounded-[8px] bg-[#f04438] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(240,68,56,0.18)] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] bg-[#f04438] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(240,68,56,0.18)] transition duration-200 hover:-translate-y-px"
                 onClick={handleConfirmDelete}
               >
                 Confirm

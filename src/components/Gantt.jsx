@@ -1004,8 +1004,8 @@ function Gantt({
                 type="button"
                 className={
                   zoom === level.id
-                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-semibold text-[#17b26a] transition duration-200 hover:-translate-y-px"
-                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-semibold text-[#475467] transition duration-200 hover:-translate-y-px"
+                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-bold text-[#17b26a] transition duration-200 hover:-translate-y-px"
+                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-bold text-[#475467] transition duration-200 hover:-translate-y-px"
                 }
                 onClick={() => onZoomChange(level.id)}
               >
@@ -1028,8 +1028,8 @@ function Gantt({
                 type="button"
                 className={
                   viewMode === mode.id
-                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-semibold text-[#17b26a] transition duration-200 hover:-translate-y-px"
-                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-semibold text-[#475467] transition duration-200 hover:-translate-y-px"
+                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-bold text-[#17b26a] transition duration-200 hover:-translate-y-px"
+                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-bold text-[#475467] transition duration-200 hover:-translate-y-px"
                 }
                 onClick={() => onViewModeChange(mode.id)}
               >
@@ -1041,7 +1041,7 @@ function Gantt({
         {onImportTimeline && !readOnly ? (
           <button
             type="button"
-            className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+            className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
             onClick={onImportTimeline}
           >
             Import Excel
@@ -1051,7 +1051,7 @@ function Gantt({
         {onExportTimeline && !readOnly ? (
           <button
             type="button"
-            className="rounded-[8px] border border-[#17b26a] bg-white px-4 py-2.5 text-sm font-semibold text-[#16895a] transition duration-200 hover:-translate-y-px"
+            className="rounded-[8px] border border-[#17b26a] bg-white px-4 py-2.5 text-sm font-bold text-[#16895a] transition duration-200 hover:-translate-y-px"
             onClick={onExportTimeline}
           >
             Export Excel
@@ -1061,7 +1061,7 @@ function Gantt({
         {!readOnly ? (
           <button
             type="button"
-              className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+              className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
               onClick={handleAddTask}
             >
               Add Task
@@ -1081,13 +1081,13 @@ function Gantt({
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-[rgba(7,12,17,0.22)] px-4 py-6">
           <div className="max-h-[90vh] w-full max-w-[760px] overflow-y-auto rounded-[8px] bg-white shadow-[0_24px_64px_rgba(16,24,40,0.24)]">
             <div className="border-b border-[#d7dfeb] px-6 py-4">
-              <h3 className="m-0 text-[18px] leading-[1.25] font-semibold text-[#070c11]">
+              <h3 className="m-0 text-[18px] leading-[1.25] font-bold text-[#070c11]">
                 Edit Timeline Task
               </h3>
             </div>
 
             <div className="grid gap-4 px-6 py-5">
-              <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <label className="grid gap-2 text-sm font-bold text-[#475467]">
                 Type of Task
                 <input
                   className={inputClass}
@@ -1101,7 +1101,7 @@ function Gantt({
                 />
               </label>
 
-              <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <label className="grid gap-2 text-sm font-bold text-[#475467]">
                 Description
                 <textarea
                   className={`${inputClass} min-h-24 resize-y`}
@@ -1115,7 +1115,7 @@ function Gantt({
                 />
               </label>
 
-              <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <label className="grid gap-2 text-sm font-bold text-[#475467]">
                 Owner / Department
                 <select
                   className={`app-select ${inputClass}`}
@@ -1136,7 +1136,7 @@ function Gantt({
                 </select>
               </label>
 
-              <div className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <div className="grid gap-2 text-sm font-bold text-[#475467]">
                 Assigned Team Members
                 <div className="grid max-h-[220px] gap-2 overflow-y-auto rounded-[8px] border border-[#d7dfeb] bg-[#fcfdff] p-3">
                   {assignees.length ? (
@@ -1152,7 +1152,7 @@ function Gantt({
                           onChange={() => handleToggleOwner(member.id)}
                         />
                         <div className="min-w-0">
-                          <div className="text-sm font-semibold text-[#070c11]">
+                          <div className="text-sm font-bold text-[#070c11]">
                             {member.name}
                           </div>
                           <div className="text-xs text-[#667085]">
@@ -1170,7 +1170,7 @@ function Gantt({
               </div>
 
               <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+                <label className="grid gap-2 text-sm font-bold text-[#475467]">
                   Start Date
                   <input
                     className={inputClass}
@@ -1185,7 +1185,7 @@ function Gantt({
                   />
                 </label>
 
-                <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+                <label className="grid gap-2 text-sm font-bold text-[#475467]">
                   End Date
                   <input
                     className={inputClass}
@@ -1201,7 +1201,7 @@ function Gantt({
                 </label>
               </div>
 
-              <label className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <label className="grid gap-2 text-sm font-bold text-[#475467]">
                 Status
                 <select
                   className={`app-select ${inputClass}`}
@@ -1221,7 +1221,7 @@ function Gantt({
                 </select>
               </label>
 
-              <div className="grid gap-2 text-sm font-semibold text-[#475467]">
+              <div className="grid gap-2 text-sm font-bold text-[#475467]">
                 Task Dependencies
                 <div className="grid max-h-[220px] gap-2 overflow-y-auto rounded-[8px] border border-[#d7dfeb] bg-[#fcfdff] p-3">
                   {tasks.data.filter((task) => String(task.id) !== String(editorState.id)).length ? (
@@ -1239,7 +1239,7 @@ function Gantt({
                             onChange={() => handleToggleDependency(task.id)}
                           />
                           <div className="min-w-0">
-                            <div className="text-sm font-semibold text-[#070c11]">
+                            <div className="text-sm font-bold text-[#070c11]">
                               {task.taskType || "General"}
                             </div>
                             <div className="text-xs text-[#667085]">
@@ -1264,14 +1264,14 @@ function Gantt({
             <div className="flex justify-end gap-3 border-t border-[#d7dfeb] bg-[#fcfdff] px-6 py-4">
               <button
                 type="button"
-                className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
                 onClick={closeEditor}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                 onClick={handleSaveEditor}
               >
                 Save Changes

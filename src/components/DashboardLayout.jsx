@@ -150,8 +150,17 @@ function GomoLogo() {
   );
 }
 
-function DashboardLayout({ loadError, projects = [], currentUserRole = "user", onLogout }) {
+function DashboardLayout({
+  loadError,
+  projects = [],
+  currentUserProfile,
+  currentUserRole = "user",
+  onLogout,
+}) {
   const location = useLocation();
+  const profileLabel = currentUserProfile?.firstName
+    ? `My Profile (${currentUserProfile.firstName})`
+    : "My Profile";
   const timelineMatch = location.pathname.match(/^\/projects\/([^/]+)\/timeline$/);
   const matchedProject = timelineMatch
     ? projects.find((project) => project.id === timelineMatch[1]) ?? null
@@ -193,7 +202,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
                 to={item.to}
                 className={({ isActive }) =>
                   [
-                    "flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-semibold no-underline transition duration-200",
+                    "flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
                     isActive
                       ? "bg-[#e8f8ef] text-[#17b26a]"
                       : "text-[#475467] hover:-translate-y-px",
@@ -213,7 +222,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
               to="/user-management"
               className={({ isActive }) =>
                 [
-                  "mb-2 flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-semibold no-underline transition duration-200",
+                  "mb-2 flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
                   isActive
                     ? "bg-[#e8f8ef] text-[#17b26a]"
                     : "text-[#475467] hover:-translate-y-px",
@@ -227,7 +236,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
               to="/my-profile"
               className={({ isActive }) =>
                 [
-                  "mb-2 flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-semibold no-underline transition duration-200",
+                  "mb-2 flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
                   isActive
                     ? "bg-[#e8f8ef] text-[#17b26a]"
                     : "text-[#475467] hover:-translate-y-px",
@@ -235,13 +244,13 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
               }
             >
               <SidebarIcon type="profile" />
-              <span>My Profile</span>
+              <span className="min-w-0 truncate">{profileLabel}</span>
             </NavLink>
             <NavLink
               to="/logs"
               className={({ isActive }) =>
                 [
-                  "flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-semibold no-underline transition duration-200",
+                  "flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
                   isActive
                     ? "bg-[#e8f8ef] text-[#17b26a]"
                     : "text-[#475467] hover:-translate-y-px",
@@ -257,7 +266,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
           <div className="flex items-start gap-3 text-[#475467]">
             <span className="mt-[7px] h-2.5 w-2.5 rounded-full bg-[#17b26a] shadow-[0_0_0_6px_rgba(23,178,106,0.12)]" />
             <div>
-              <strong className="mb-1 block text-sm font-semibold text-[#070c11]">
+              <strong className="mb-1 block text-sm font-bold text-[#070c11]">
                 {loadError ? "Sync Issue" : "System Healthy"}
               </strong>
               {loadError ? (
@@ -268,7 +277,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
 
           <button
             type="button"
-            className="mt-5 inline-flex w-full items-center gap-3 rounded-[8px] border border-[#fecaca] bg-white px-5 py-4 text-left text-[15px] font-semibold text-[#ef4444] transition duration-200 hover:-translate-y-px hover:shadow-[0_8px_18px_rgba(239,68,68,0.08)]"
+            className="mt-5 inline-flex w-full items-center gap-3 rounded-[8px] border border-[#fecaca] bg-white px-5 py-4 text-left text-[15px] font-bold text-[#ef4444] transition duration-200 hover:-translate-y-px hover:shadow-[0_8px_18px_rgba(239,68,68,0.08)]"
             onClick={onLogout}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 shrink-0">
@@ -298,7 +307,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
       <section className="grid h-screen min-w-0 grid-rows-[69px_minmax(0,1fr)] overflow-hidden bg-[#f5f7fb]">
         <header className="sticky top-0 z-20 flex h-[69px] items-center justify-between gap-4 border-b border-[#d7dfeb] bg-white px-6">
           <div>
-            <h1 className="m-0 text-[20px] leading-[1.25] font-semibold text-[#070c11]">
+            <h1 className="m-0 text-[20px] leading-[1.25] font-bold text-[#070c11]">
               {pageMeta.title}
             </h1>
             <p className="mt-1 text-sm text-[#667085]">{pageMeta.subtitle}</p>
@@ -307,7 +316,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
             {matchedProject ? (
               <Link
                 to={`/projects/${matchedProject.id}/edit`}
-                className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] no-underline transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] no-underline transition duration-200 hover:-translate-y-px"
               >
                 Edit Project
               </Link>
@@ -317,7 +326,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
                 to={`/projects/${getPublicTimelineProjectId(matchedProject)}/timeline/view`}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white no-underline shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white no-underline shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
               >
                 View Timeline
               </Link>
@@ -325,7 +334,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
             {location.pathname === "/user-management" ? (
               <button
                 type="button"
-                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                 onClick={() => window.dispatchEvent(new Event("open-add-user-modal"))}
               >
                 Add new user
@@ -334,7 +343,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
             {location.pathname === "/team-members" ? (
               <button
                 type="button"
-                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                 onClick={() => window.dispatchEvent(new Event("open-add-team-member-modal"))}
               >
                 Add team member
@@ -342,7 +351,7 @@ function DashboardLayout({ loadError, projects = [], currentUserRole = "user", o
             ) : null}
             <button
               type="button"
-              className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+              className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
               onClick={() => window.location.reload()}
             >
               Refresh

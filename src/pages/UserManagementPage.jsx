@@ -214,8 +214,8 @@ function UserManagementPage({
                 type="button"
                 className={
                   activeUserTab === tab.id
-                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-semibold text-[#17b26a] transition duration-200 hover:-translate-y-px"
-                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-semibold text-[#475467] transition duration-200 hover:-translate-y-px"
+                    ? "rounded-[8px] bg-[#e8f8ef] px-3.5 py-2 text-sm font-bold text-[#17b26a] transition duration-200 hover:-translate-y-px"
+                    : "rounded-[8px] bg-transparent px-3.5 py-2 text-sm font-bold text-[#475467] transition duration-200 hover:-translate-y-px"
                 }
                 onClick={() => setActiveUserTab(tab.id)}
               >
@@ -263,7 +263,7 @@ function UserManagementPage({
                         }
                       />
                     ) : (
-                      <span className="font-semibold">{user.name}</span>
+                      <span className="font-bold">{user.name}</span>
                     )}
                   </div>
 
@@ -338,14 +338,14 @@ function UserManagementPage({
                       <>
                         <button
                           type="button"
-                          className="rounded-[8px] bg-[#17b26a] px-3 py-2 text-xs font-semibold text-white transition duration-200 hover:-translate-y-px"
+                          className="rounded-[8px] bg-[#17b26a] px-3 py-2 text-xs font-bold text-white transition duration-200 hover:-translate-y-px"
                           onClick={() => saveEditingUser(user)}
                         >
                           Save
                         </button>
                         <button
                           type="button"
-                          className="rounded-[8px] border border-[#c5d0de] bg-white px-3 py-2 text-xs font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+                          className="rounded-[8px] border border-[#c5d0de] bg-white px-3 py-2 text-xs font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
                           onClick={cancelEditingUser}
                         >
                           Cancel
@@ -382,13 +382,13 @@ function UserManagementPage({
                             </svg>
                           </button>
                         ) : isCurrentUser ? (
-                          <span className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#f2f4f7] px-2 py-2 text-xs font-semibold text-[#475467]">
+                          <span className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] bg-[#f2f4f7] px-2 py-2 text-xs font-bold text-[#475467]">
                             You
                           </span>
                         ) : null}
                       </>
                     ) : currentUserRole !== "user" ? (
-                      <span className="rounded-[8px] bg-[#fdf2f2] px-3 py-2 text-xs font-semibold text-[#b42318]">
+                      <span className="rounded-[8px] bg-[#fdf2f2] px-3 py-2 text-xs font-bold text-[#b42318]">
                         No access
                       </span>
                     ) : null}
@@ -408,7 +408,7 @@ function UserManagementPage({
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-[rgba(7,12,17,0.22)] px-4 py-6">
           <div className="w-full max-w-[560px] overflow-hidden rounded-[8px] bg-white shadow-[0_24px_64px_rgba(16,24,40,0.24)]">
             <div className="border-b border-[#d7dfeb] px-6 py-4">
-              <h3 className="m-0 text-[18px] leading-[1.25] font-semibold text-[#070c11]">
+              <h3 className="m-0 text-[18px] leading-[1.25] font-bold text-[#070c11]">
                 Add new user
               </h3>
             </div>
@@ -474,7 +474,7 @@ function UserManagementPage({
               <div className="mt-2 flex justify-end gap-3 border-t border-[#d7dfeb] pt-4">
                 <button
                   type="button"
-                  className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-semibold text-[#344054] transition duration-200 hover:-translate-y-px"
+                  className="rounded-[8px] border border-[#c5d0de] bg-white px-4 py-2.5 text-sm font-bold text-[#344054] transition duration-200 hover:-translate-y-px"
                   onClick={() => {
                     setFormError("");
                     setIsAddModalOpen(false);
@@ -484,7 +484,7 @@ function UserManagementPage({
                 </button>
                 <button
                   type="submit"
-                  className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
+                  className="rounded-[8px] bg-[#17b26a] px-4 py-2.5 text-sm font-bold text-white shadow-[0_10px_20px_rgba(23,178,106,0.16)] transition duration-200 hover:-translate-y-px"
                 >
                   Create user
                 </button>
