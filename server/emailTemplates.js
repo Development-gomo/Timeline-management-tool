@@ -66,39 +66,50 @@ function createUserWelcomeEmail({ name, email, password, portalUrl }) {
 function createTimelineTaskEmail({
   type,
   projectName,
-  taskName,
-  dueDate,
-  status,
-  daysOverdue,
+  tasks,
   timelineUrl,
   portalUrl,
 }) {
   const isOverdue = type === "overdue";
   const safeProjectName = escapeHtml(projectName || "Project");
-  const safeTaskName = escapeHtml(taskName || "Untitled task");
-  const safeDueDate = escapeHtml(dueDate);
-  const safeStatus = escapeHtml(status);
   const safeTimelineUrl = escapeHtml(timelineUrl);
   const safeLogoUrl = `${escapeHtml(portalUrl)}/images/Primary-logo.webp`;
-  const heading = isOverdue
-    ? `Task overdue by ${daysOverdue} day${daysOverdue === 1 ? "" : "s"}`
-    : "Task due in 5 days";
+  const heading = isOverdue ? "Overdue tasks" : "Upcoming due dates";
   const intro = isOverdue
-    ? "This task is past its due date and still requires attention."
-    : "This task is approaching its due date.";
+    ? `${tasks.length} task${tasks.length === 1 ? " is" : "s are"} past the due date and still require${tasks.length === 1 ? "s" : ""} attention.`
+    : `${tasks.length} task${tasks.length === 1 ? " is" : "s are"} due in five days.`;
+  const taskRows = tasks
+    .map((task) => {
+      const overdueLabel = isOverdue
+        ? `<div style="margin-top:6px;font-size:13px;font-weight:700;color:#b42318">${task.daysOverdue} day${task.daysOverdue === 1 ? "" : "s"} overdue</div>`
+        : "";
+
+      return `
+        <div style="padding:16px 0;border-bottom:1px solid #d7dfeb">
+          <div style="font-weight:700;color:#101828">${escapeHtml(task.name)}</div>
+          <div style="margin-top:6px;font-size:14px;color:#667085">Due: ${escapeHtml(task.dueDate)} &nbsp;•&nbsp; Status: ${escapeHtml(task.status === "ongoing" ? "Ongoing" : "Pending")}</div>
+          ${overdueLabel}
+        </div>
+      `;
+    })
+    .join("");
 
   return {
-    subject: `${isOverdue ? "Overdue task" : "Task due soon"}: ${taskName} | ${projectName}`,
+    subject: `${isOverdue ? "Overdue tasks" : "Upcoming due dates"} for ${projectName}`,
     text: [
-      heading,
+      `${heading} for ${projectName}`,
       "",
       intro,
-      `Project: ${projectName}`,
-      `Task: ${taskName}`,
-      `Due date: ${dueDate}`,
-      `Status: ${status}`,
       "",
-      `Open timeline: ${timelineUrl}`,
+      ...tasks.flatMap((task) => [
+        `- ${task.name}`,
+        `  Due: ${task.dueDate}`,
+        `  Status: ${task.status === "ongoing" ? "Ongoing" : "Pending"}${
+          isOverdue ? ` (${task.daysOverdue} days overdue)` : ""
+        }`,
+      ]),
+      "",
+      `Go to project: ${timelineUrl}`,
     ].join("\n"),
     html: `
       <!doctype html>
@@ -118,15 +129,12 @@ function createTimelineTaskEmail({
               </div>
               <div style="padding:28px">
                 <div style="display:inline-block;margin-bottom:16px;padding:6px 10px;border-radius:999px;background:${isOverdue ? "#fff5f4" : "#fffaeb"};color:${isOverdue ? "#b42318" : "#b54708"};font-size:12px;font-weight:700">${isOverdue ? "OVERDUE" : "DUE SOON"}</div>
-                <h1 style="margin:0 0 12px;font-family:Merriweather,Georgia,serif;font-size:22px;font-weight:700;line-height:1.35">${heading}</h1>
+                <h1 style="margin:0 0 12px;font-family:Merriweather,Georgia,serif;font-size:22px;font-weight:700;line-height:1.35">${heading} for ${safeProjectName}</h1>
                 <p style="margin:0 0 20px;line-height:1.6;color:#475467">${intro}</p>
-                <div style="margin:0 0 24px;padding:18px;border-radius:8px;background:#f5f7fb">
-                  <p style="margin:0 0 10px"><strong>Project:</strong> ${safeProjectName}</p>
-                  <p style="margin:0 0 10px"><strong>Task:</strong> ${safeTaskName}</p>
-                  <p style="margin:0 0 10px"><strong>Due date:</strong> ${safeDueDate}</p>
-                  <p style="margin:0"><strong>Status:</strong> ${safeStatus}</p>
+                <div style="margin:0 0 24px;padding:2px 18px;border-radius:8px;background:#f5f7fb">
+                  ${taskRows}
                 </div>
-                <a href="${safeTimelineUrl}" style="display:inline-block;padding:12px 18px;border-radius:8px;background:#17b26a;color:#ffffff;font-weight:700;text-decoration:none">Open project timeline</a>
+                <a href="${safeTimelineUrl}" style="display:inline-block;padding:12px 18px;border-radius:8px;background:#17b26a;color:#ffffff;font-weight:700;text-decoration:none">Go to project</a>
               </div>
             </div>
           </div>

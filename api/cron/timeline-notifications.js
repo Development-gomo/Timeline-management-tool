@@ -62,7 +62,7 @@ export default async function handler(request, response) {
 
     for (const candidate of candidates) {
       const deliveryId = sanitizeDocumentId(
-        `${today}_${candidate.type}_${candidate.project.id}_${candidate.task.id}`
+        `${today}_${candidate.type}_${candidate.project.id}`
       );
       const deliveryRef = firestore
         .collection("timeline_notification_deliveries")
@@ -72,7 +72,7 @@ export default async function handler(request, response) {
         await deliveryRef.create({
           type: candidate.type,
           project_id: String(candidate.project.id),
-          task_id: String(candidate.task.id),
+          task_ids: candidate.tasks.map((task) => String(task.id)),
           notification_date: today,
           status: "sending",
           created_at: new Date().toISOString(),
@@ -89,10 +89,10 @@ export default async function handler(request, response) {
       const message = createTimelineTaskEmail({
         type: candidate.type,
         projectName: candidate.project.name || "Project",
-        taskName: candidate.task.text || "Untitled task",
-        dueDate: formatDueDate(candidate.task.end_date),
-        status: candidate.status === "ongoing" ? "Ongoing" : "Pending",
-        daysOverdue: Math.abs(candidate.daysUntilDue),
+        tasks: candidate.tasks.map((task) => ({
+          ...task,
+          dueDate: formatDueDate(task.dueDate),
+        })),
         timelineUrl,
         portalUrl,
       });

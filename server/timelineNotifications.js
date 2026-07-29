@@ -36,6 +36,9 @@ function getTimelineNotificationCandidates(projects, today, managerEmail) {
 
   projects.forEach((project) => {
     const tasks = Array.isArray(project.timeline?.data) ? project.timeline.data : [];
+    const dueSoonTasks = [];
+    const overdueTasks = [];
+    const overdueOwnerEmails = new Set();
 
     tasks.forEach((task) => {
       const status = String(task.status || "pending").toLowerCase();
@@ -49,30 +52,41 @@ function getTimelineNotificationCandidates(projects, today, managerEmail) {
         return;
       }
 
-      const ownerEmails = [...new Set(getTaskOwnerEmails(project, task))];
-      const baseCandidate = {
-        project,
-        task,
+      const taskDetails = {
+        id: task.id,
+        name: task.text || "Untitled task",
+        dueDate: task.end_date,
         status,
-        ownerEmails,
-        managerEmail,
-        daysUntilDue,
+        daysOverdue: Math.max(0, -daysUntilDue),
       };
 
       if (daysUntilDue === 5) {
-        candidates.push({
-          ...baseCandidate,
-          type: "due-soon",
-          recipients: [managerEmail],
-        });
+        dueSoonTasks.push(taskDetails);
       } else if (daysUntilDue < 0) {
-        candidates.push({
-          ...baseCandidate,
-          type: "overdue",
-          recipients: [...new Set([...ownerEmails, managerEmail])],
-        });
+        overdueTasks.push(taskDetails);
+        getTaskOwnerEmails(project, task).forEach((email) =>
+          overdueOwnerEmails.add(email)
+        );
       }
     });
+
+    if (dueSoonTasks.length) {
+      candidates.push({
+        project,
+        type: "due-soon",
+        tasks: dueSoonTasks,
+        recipients: [managerEmail],
+      });
+    }
+
+    if (overdueTasks.length) {
+      candidates.push({
+        project,
+        type: "overdue",
+        tasks: overdueTasks,
+        recipients: [...new Set([...overdueOwnerEmails, managerEmail])],
+      });
+    }
   });
 
   return candidates;

@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import * as XLSX from "xlsx";
 import Gantt from "../components/Gantt";
+import { sendTimelineTestEmail } from "../lib/email";
 import { findProjectByPublicTimelineId } from "../lib/publicTimeline";
 import {
   normalizeStoredTask,
@@ -435,6 +436,9 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
   const [zoom, setZoom] = useState("week");
   const [viewMode, setViewMode] = useState("table");
   const [importError, setImportError] = useState("");
+  const [testEmailNotice, setTestEmailNotice] = useState("");
+  const [testEmailError, setTestEmailError] = useState("");
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
 
   const stats = useMemo(() => {
     if (!project) {
@@ -559,6 +563,25 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
     }
   };
 
+  const handleSendTestEmail = async () => {
+    setIsSendingTestEmail(true);
+    setTestEmailNotice("");
+    setTestEmailError("");
+
+    try {
+      const result = await sendTimelineTestEmail(project.id);
+      setTestEmailNotice(
+        `Test email sent to ${result.recipient} with ${result.taskCount} task${
+          result.taskCount === 1 ? "" : "s"
+        }.`
+      );
+    } catch (error) {
+      setTestEmailError(error.message || "Unable to send the test email.");
+    } finally {
+      setIsSendingTestEmail(false);
+    }
+  };
+
   return (
     <div className="min-w-0">
       <section className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-4">
@@ -603,6 +626,16 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
             {importError}
           </div>
         ) : null}
+        {testEmailNotice ? (
+          <div className="mb-4 rounded-[8px] border border-[#abefc6] bg-[#ecfdf3] px-4 py-3 text-sm font-bold text-[#067647]">
+            {testEmailNotice}
+          </div>
+        ) : null}
+        {testEmailError ? (
+          <div className="mb-4 rounded-[8px] border border-[#ffd5d2] bg-[#fff5f4] px-4 py-3 text-sm font-bold text-[#b42318]">
+            {testEmailError}
+          </div>
+        ) : null}
         <Gantt
           tasks={project.timeline}
           zoom={zoom}
@@ -612,6 +645,8 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
           assignees={project.teamMembers}
           onImportTimeline={readOnly ? null : handleImportClick}
           onExportTimeline={readOnly ? null : handleExportTimeline}
+          onSendTestEmail={readOnly ? null : handleSendTestEmail}
+          isSendingTestEmail={isSendingTestEmail}
           onTasksChange={
             readOnly ? null : (nextTimeline) => onTimelineChange(project.id, nextTimeline)
           }
