@@ -77,7 +77,7 @@ function createTimelineTaskEmail({
   const heading = isOverdue ? "Overdue tasks" : "Upcoming due dates";
   const intro = isOverdue
     ? `${tasks.length} task${tasks.length === 1 ? " is" : "s are"} past the due date and still require${tasks.length === 1 ? "s" : ""} attention.`
-    : `${tasks.length} task${tasks.length === 1 ? " is" : "s are"} due in five days.`;
+    : `${tasks.length} task${tasks.length === 1 ? " is" : "s are"} approaching the due date.`;
   const taskRows = tasks
     .map((task) => {
       const overdueLabel = isOverdue
@@ -87,7 +87,7 @@ function createTimelineTaskEmail({
       return `
         <div style="padding:16px 0;border-bottom:1px solid #d7dfeb">
           <div style="font-weight:700;color:#101828">${escapeHtml(task.name)}</div>
-          <div style="margin-top:6px;font-size:14px;color:#667085">Due: ${escapeHtml(task.dueDate)} &nbsp;•&nbsp; Status: ${escapeHtml(task.status === "ongoing" ? "Ongoing" : "Pending")}</div>
+          <div style="margin-top:6px;font-size:14px;color:#667085">Due: ${escapeHtml(task.dueDate)} &nbsp;•&nbsp; Status: ${escapeHtml(task.status === "ongoing" ? "Ongoing" : "Pending")} &nbsp;•&nbsp; Owner: ${escapeHtml((task.ownerNames || ["Unassigned"]).join(", "))}</div>
           ${overdueLabel}
         </div>
       `;
@@ -104,7 +104,8 @@ function createTimelineTaskEmail({
       ...tasks.flatMap((task) => [
         `- ${task.name}`,
         `  Due: ${task.dueDate}`,
-        `  Status: ${task.status === "ongoing" ? "Ongoing" : "Pending"}${
+        `  Status: ${task.status === "ongoing" ? "Ongoing" : "Pending"}`,
+        `  Owner: ${(task.ownerNames || ["Unassigned"]).join(", ")}${
           isOverdue ? ` (${task.daysOverdue} days overdue)` : ""
         }`,
       ]),

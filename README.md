@@ -64,11 +64,12 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY----
 used to verify the signed-in Firebase user before sending email. `RESEND_FROM_EMAIL`
 must use a domain verified in Resend.
 
-The production deployment runs `/api/cron/timeline-notifications` every day at
-03:30 UTC (09:00 IST). It sends a manager reminder five days before active tasks
-are due and a daily overdue reminder to assigned task owners plus
-`TIMELINE_NOTIFICATION_EMAIL`. Firebase Admin credentials are required so the
-server-side scheduler can read projects and record delivery deduplication state.
+The production deployment runs `/api/cron/timeline-notifications` every weekday
+at 03:30 UTC (09:00 IST). `TIMELINE_NOTIFICATION_EMAIL` receives complete
+per-project summaries for tasks due in five days and overdue tasks. Each assigned
+owner receives a separate project summary containing only their assigned tasks.
+Firebase Admin credentials are required so the server-side scheduler can read
+projects and record delivery deduplication state.
 
 4. Start local development:
 

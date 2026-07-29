@@ -31,6 +31,25 @@ function getTaskOwnerEmails(project, task) {
     .filter((email) => email.includes("@"));
 }
 
+function getTaskOwnerNames(project, task) {
+  const ownerIds = new Set((task.ownerIds || []).map(String));
+  const ownerNames = (project.teamMembers || [])
+    .filter((member) => ownerIds.has(String(member.id)))
+    .map((member) => String(member.name || "").trim())
+    .filter(Boolean);
+
+  if (ownerNames.length) {
+    return ownerNames;
+  }
+
+  return [String(task.ownerRole || "Unassigned").trim() || "Unassigned"];
+}
+
+function isDueSoonNotificationDay(today, daysUntilDue) {
+  const dayOfWeek = new Date(`${today}T00:00:00Z`).getUTCDay();
+  return daysUntilDue === 5 || (dayOfWeek === 5 && [6, 7].includes(daysUntilDue));
+}
+
 function getTimelineNotificationCandidates(projects, today, managerEmail) {
   const candidates = [];
 
@@ -38,7 +57,16 @@ function getTimelineNotificationCandidates(projects, today, managerEmail) {
     const tasks = Array.isArray(project.timeline?.data) ? project.timeline.data : [];
     const dueSoonTasks = [];
     const overdueTasks = [];
-    const overdueOwnerEmails = new Set();
+    const dueSoonTasksByOwner = new Map();
+    const overdueTasksByOwner = new Map();
+
+    const addTaskForOwners = (ownerMap, task, taskDetails) => {
+      getTaskOwnerEmails(project, task).forEach((email) => {
+        const ownerTasks = ownerMap.get(email) || [];
+        ownerTasks.push(taskDetails);
+        ownerMap.set(email, ownerTasks);
+      });
+    };
 
     tasks.forEach((task) => {
       const status = String(task.status || "pending").toLowerCase();
@@ -57,16 +85,16 @@ function getTimelineNotificationCandidates(projects, today, managerEmail) {
         name: task.text || "Untitled task",
         dueDate: task.end_date,
         status,
+        ownerNames: getTaskOwnerNames(project, task),
         daysOverdue: Math.max(0, -daysUntilDue),
       };
 
-      if (daysUntilDue === 5) {
+      if (isDueSoonNotificationDay(today, daysUntilDue)) {
         dueSoonTasks.push(taskDetails);
+        addTaskForOwners(dueSoonTasksByOwner, task, taskDetails);
       } else if (daysUntilDue < 0) {
         overdueTasks.push(taskDetails);
-        getTaskOwnerEmails(project, task).forEach((email) =>
-          overdueOwnerEmails.add(email)
-        );
+        addTaskForOwners(overdueTasksByOwner, task, taskDetails);
       }
     });
 
@@ -74,8 +102,21 @@ function getTimelineNotificationCandidates(projects, today, managerEmail) {
       candidates.push({
         project,
         type: "due-soon",
+        audienceKey: "manager",
         tasks: dueSoonTasks,
         recipients: [managerEmail],
+      });
+
+      dueSoonTasksByOwner.forEach((ownerTasks, ownerEmail) => {
+        if (ownerEmail !== managerEmail) {
+          candidates.push({
+            project,
+            type: "due-soon",
+            audienceKey: `owner-${ownerEmail}`,
+            tasks: ownerTasks,
+            recipients: [ownerEmail],
+          });
+        }
       });
     }
 
@@ -83,8 +124,21 @@ function getTimelineNotificationCandidates(projects, today, managerEmail) {
       candidates.push({
         project,
         type: "overdue",
+        audienceKey: "manager",
         tasks: overdueTasks,
-        recipients: [...new Set([...overdueOwnerEmails, managerEmail])],
+        recipients: [managerEmail],
+      });
+
+      overdueTasksByOwner.forEach((ownerTasks, ownerEmail) => {
+        if (ownerEmail !== managerEmail) {
+          candidates.push({
+            project,
+            type: "overdue",
+            audienceKey: `owner-${ownerEmail}`,
+            tasks: ownerTasks,
+            recipients: [ownerEmail],
+          });
+        }
       });
     }
   });

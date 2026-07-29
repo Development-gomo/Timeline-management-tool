@@ -257,8 +257,6 @@ function Gantt({
   onViewModeChange,
   onImportTimeline,
   onExportTimeline,
-  onSendTestEmail,
-  isSendingTestEmail = false,
   onTasksChange,
   readOnly = false,
 }) {
@@ -1107,17 +1105,6 @@ function Gantt({
             onClick={onExportTimeline}
           >
             Export Excel
-          </button>
-        ) : null}
-
-        {onSendTestEmail && !readOnly ? (
-          <button
-            type="button"
-            className="rounded-[8px] border border-[#7cd4fd] bg-[#f0f9ff] px-4 py-2.5 text-sm font-bold text-[#026aa2] transition duration-200 hover:-translate-y-px disabled:cursor-wait disabled:opacity-60"
-            onClick={onSendTestEmail}
-            disabled={isSendingTestEmail}
-          >
-            {isSendingTestEmail ? "Sending test…" : "Send test email"}
           </button>
         ) : null}
 

@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/timeline-notifications",
-      "schedule": "30 3 * * *"
+      "schedule": "30 3 * * 1-5"
     }
   ],
   "rewrites": [

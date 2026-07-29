@@ -62,7 +62,7 @@ export default async function handler(request, response) {
 
     for (const candidate of candidates) {
       const deliveryId = sanitizeDocumentId(
-        `${today}_${candidate.type}_${candidate.project.id}`
+        `${today}_${candidate.type}_${candidate.project.id}_${candidate.audienceKey}`
       );
       const deliveryRef = firestore
         .collection("timeline_notification_deliveries")
@@ -71,6 +71,7 @@ export default async function handler(request, response) {
       try {
         await deliveryRef.create({
           type: candidate.type,
+          audience: candidate.audienceKey,
           project_id: String(candidate.project.id),
           task_ids: candidate.tasks.map((task) => String(task.id)),
           notification_date: today,
