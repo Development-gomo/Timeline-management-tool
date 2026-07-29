@@ -903,6 +903,12 @@ function Gantt({
     }
 
     const resizeObserver = new ResizeObserver(() => {
+      const containerWidth = containerRef.current?.clientWidth || 1200;
+
+      if (viewMode === "table") {
+        gantt.config.grid_width = Math.max(720, containerWidth - 2);
+      }
+
       applyChartColumnWidth(containerRef.current, zoom);
       gantt.setSizes();
       gantt.render();
@@ -913,7 +919,7 @@ function Gantt({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [zoom]);
+  }, [viewMode, zoom]);
 
   const handleAddTask = () => {
     const taskId = gantt.addTask(createDraftTask());
@@ -1070,10 +1076,14 @@ function Gantt({
         </div>
 
         <div
-          className="overflow-visible bg-white shadow-[0_8px_24px_rgba(16,24,40,0.06)]"
+          className="min-w-0 max-w-full overflow-hidden bg-white shadow-[0_8px_24px_rgba(16,24,40,0.06)]"
           style={{ minHeight: `${ganttHeight}px` }}
         >
-          <div ref={containerRef} className="w-full" style={{ height: `${ganttHeight}px` }} />
+          <div
+            ref={containerRef}
+            className="min-w-0 max-w-full"
+            style={{ height: `${ganttHeight}px`, width: "100%" }}
+          />
         </div>
       </div>
 

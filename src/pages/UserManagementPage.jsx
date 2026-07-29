@@ -33,6 +33,7 @@ function UserManagementPage({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [activeUserTab, setActiveUserTab] = useState("all");
   const [formError, setFormError] = useState("");
+  const [pageNotice, setPageNotice] = useState("");
   const [userForm, setUserForm] = useState({
     name: "",
     email: "",
@@ -117,19 +118,23 @@ function UserManagementPage({
       return;
     }
 
-    let didAdd = false;
+    let addResult = false;
     try {
-      didAdd = await onAddAppUser(userForm);
+      addResult = await onAddAppUser(userForm);
     } catch (error) {
       setFormError(error.message || "Unable to add this app user.");
       return;
     }
 
-    if (!didAdd) {
+    if (!addResult || addResult.success === false) {
       setFormError("Unable to add this app user.");
       return;
     }
 
+    setPageNotice(
+      addResult.notice ||
+        (addResult.emailSent ? "User created and welcome email sent successfully." : "")
+    );
     setUserForm({
       name: "",
       email: "",
@@ -198,6 +203,22 @@ function UserManagementPage({
 
   return (
     <div>
+      {pageNotice ? (
+        <div
+          className="mb-4 flex items-start justify-between gap-4 rounded-[8px] border border-[#abefc6] bg-[#ecfdf3] px-4 py-3 text-sm font-bold text-[#067647]"
+          role="status"
+        >
+          <span>{pageNotice}</span>
+          <button
+            type="button"
+            className="shrink-0 text-[#067647]"
+            onClick={() => setPageNotice("")}
+            aria-label="Dismiss notification"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
       <section className="overflow-hidden rounded-[8px] border border-[#d7dfeb] bg-white shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
         <div className="border-b border-[#d7dfeb] bg-white px-5 py-4">
           <div

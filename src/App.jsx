@@ -31,6 +31,7 @@ import {
   hasFirebaseConfig,
   updateCurrentUserPassword,
 } from "./lib/firebase";
+import { sendNewUserWelcomeEmail } from "./lib/email";
 import { formatDisplayDate, normalizeStoredTask, TASK_STATUS_LABELS } from "./lib/timeline";
 
 const TEMPLATE_VERSION = 2;
@@ -1465,7 +1466,32 @@ function App() {
       ],
     });
 
-    return true;
+    if (authProvisionResult.existingAccount) {
+      return {
+        success: true,
+        emailSent: false,
+        notice:
+          "The user was added. Firebase sent a password-reset email because the authentication account already existed.",
+      };
+    }
+
+    try {
+      await sendNewUserWelcomeEmail({
+        name: nextUser.name,
+        email: nextUser.email,
+        password: userInput.password.trim(),
+      });
+
+      return { success: true, emailSent: true };
+    } catch (error) {
+      return {
+        success: true,
+        emailSent: false,
+        notice: `The user account was created, but the welcome email could not be sent: ${
+          error.message || "Unknown email error."
+        }`,
+      };
+    }
   };
 
   const handleUpdateAppUser = (userId, updates) => {

@@ -560,7 +560,7 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
   };
 
   return (
-    <div>
+    <div className="min-w-0">
       <section className="mb-4 grid grid-cols-1 gap-4 xl:grid-cols-4">
         <StatCard
           label="Total Tasks"
@@ -588,7 +588,7 @@ function ProjectTimelinePage({ projects, onTimelineChange, readOnly = false }) {
         />
       </section>
 
-      <section className="rounded-[8px] border border-[#d7dfeb] bg-white p-[18px] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
+      <section className="min-w-0 max-w-full overflow-hidden rounded-[8px] border border-[#d7dfeb] bg-white p-[18px] shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
         {!readOnly ? (
           <input
             ref={importInputRef}

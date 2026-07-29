@@ -49,13 +49,24 @@ VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 VITE_SUPER_ADMIN_EMAILS=
+FIREBASE_API_KEY=
+RESEND_API_KEY=
+RESEND_FROM_EMAIL="GomoGroup Portal <portal@your-verified-domain.com>"
+PORTAL_URL=https://your-portal-domain.com
 ```
+
+`FIREBASE_API_KEY` should match `VITE_FIREBASE_API_KEY`. The server-side copy is
+used to verify the signed-in Firebase user before sending email. `RESEND_FROM_EMAIL`
+must use a domain verified in Resend.
 
 4. Start local development:
 
 ```bash
 npm run dev
 ```
+
+To test the server-side email endpoint locally, run the project with `vercel dev`
+so the Vite app and `/api` function are served together.
 
 ## Build
 

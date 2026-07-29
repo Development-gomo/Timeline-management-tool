@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import logo from "../../images/Primary-logo.webp";
 import { getPublicTimelineProjectId } from "../lib/publicTimeline";
@@ -139,13 +140,59 @@ function SidebarIcon({ type }) {
   );
 }
 
-function GomoLogo() {
+function SidebarToggleIcon({ isCollapsed }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+      <rect
+        x="3.5"
+        y="4"
+        width="17"
+        height="16"
+        rx="2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M9 4v16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d={isCollapsed ? "m13 9 3 3-3 3" : "m16 9-3 3 3 3"}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function GomoLogo({ isCollapsed, onToggle }) {
   return (
     <div
-      className="flex h-[69px] items-center border-b border-[#d7dfeb] px-6"
+      className={[
+        "flex h-[69px] items-center border-b border-[#d7dfeb]",
+        isCollapsed ? "justify-center px-3" : "justify-between gap-3 px-[18px]",
+      ].join(" ")}
       aria-label="Gomo Group"
     >
-      <img className="w-full max-w-[155px]" src={logo} alt="Gomo Group" />
+      {!isCollapsed ? (
+        <img className="min-w-0 max-w-[155px]" src={logo} alt="Gomo Group" />
+      ) : null}
+      <button
+        type="button"
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-[#c5d0de] bg-white text-[#475467] transition duration-200 hover:border-[#17b26a] hover:bg-[#e8f8ef] hover:text-[#17b26a]"
+        onClick={onToggle}
+        aria-label={isCollapsed ? "Open sidebar" : "Close sidebar"}
+        aria-expanded={!isCollapsed}
+        title={isCollapsed ? "Open sidebar" : "Close sidebar"}
+      >
+        <SidebarToggleIcon isCollapsed={isCollapsed} />
+      </button>
     </div>
   );
 }
@@ -158,6 +205,24 @@ function DashboardLayout({
   onLogout,
 }) {
   const location = useLocation();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      return window.localStorage.getItem("sidebar-collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed((wasCollapsed) => {
+      const nextValue = !wasCollapsed;
+      try {
+        window.localStorage.setItem("sidebar-collapsed", String(nextValue));
+      } catch {
+        // The toggle still works when browser storage is unavailable.
+      }
+      return nextValue;
+    });
+  };
   const profileLabel = currentUserProfile?.firstName
     ? `My Profile (${currentUserProfile.firstName})`
     : "My Profile";
@@ -179,13 +244,26 @@ function DashboardLayout({
         : PAGE_META[location.pathname] ?? PAGE_META["/projects"];
 
   return (
-    <main className="grid h-screen overflow-hidden md:grid-cols-[255px_minmax(0,1fr)]">
-      <aside className="flex h-screen flex-col justify-between overflow-hidden border-r border-[#d7dfeb] bg-white">
+    <main
+      className={[
+        "grid h-screen overflow-hidden transition-[grid-template-columns] duration-300",
+        isSidebarCollapsed
+          ? "grid-cols-[76px_minmax(0,1fr)]"
+          : "grid-cols-[255px_minmax(0,1fr)]",
+      ].join(" ")}
+    >
+      <aside
+        className="flex h-screen flex-col justify-between overflow-hidden border-r border-[#d7dfeb] bg-white"
+        aria-label="Sidebar"
+      >
         <div className="flex min-h-0 flex-col">
-          <GomoLogo />
+          <GomoLogo isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
 
           <nav
-            className="grid content-start gap-2 px-3 py-4"
+            className={[
+              "grid content-start gap-2 py-4",
+              isSidebarCollapsed ? "px-2" : "px-3",
+            ].join(" ")}
             aria-label="Primary navigation"
           >
             {[
@@ -202,83 +280,108 @@ function DashboardLayout({
                 to={item.to}
                 className={({ isActive }) =>
                   [
-                    "flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
+                    "flex w-full items-center rounded-[8px] py-3 text-left text-sm font-bold no-underline transition duration-200",
+                    isSidebarCollapsed ? "justify-center px-3" : "gap-3 px-4",
                     isActive
                       ? "bg-[#e8f8ef] text-[#17b26a]"
                       : "text-[#475467] hover:-translate-y-px",
                   ].join(" ")
                 }
+                title={isSidebarCollapsed ? item.label : undefined}
               >
                 <SidebarIcon type={item.icon} />
-                <span>{item.label}</span>
+                {!isSidebarCollapsed ? <span>{item.label}</span> : null}
               </NavLink>
             ))}
           </nav>
         </div>
 
         <div className="flex-none">
-          <div className="px-3 pb-3">
+          <div className={isSidebarCollapsed ? "px-2 pb-3" : "px-3 pb-3"}>
             <NavLink
               to="/user-management"
               className={({ isActive }) =>
                 [
-                  "mb-2 flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
+                  "mb-2 flex w-full items-center rounded-[8px] py-3 text-left text-sm font-bold no-underline transition duration-200",
+                  isSidebarCollapsed ? "justify-center px-3" : "gap-3 px-4",
                   isActive
                     ? "bg-[#e8f8ef] text-[#17b26a]"
                     : "text-[#475467] hover:-translate-y-px",
                 ].join(" ")
               }
+              title={isSidebarCollapsed ? "User Management" : undefined}
             >
               <SidebarIcon type="user-management" />
-              <span>User Management</span>
+              {!isSidebarCollapsed ? <span>User Management</span> : null}
             </NavLink>
             <NavLink
               to="/my-profile"
               className={({ isActive }) =>
                 [
-                  "mb-2 flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
+                  "mb-2 flex w-full items-center rounded-[8px] py-3 text-left text-sm font-bold no-underline transition duration-200",
+                  isSidebarCollapsed ? "justify-center px-3" : "gap-3 px-4",
                   isActive
                     ? "bg-[#e8f8ef] text-[#17b26a]"
                     : "text-[#475467] hover:-translate-y-px",
                 ].join(" ")
               }
+              title={isSidebarCollapsed ? profileLabel : undefined}
             >
               <SidebarIcon type="profile" />
-              <span className="min-w-0 truncate">{profileLabel}</span>
+              {!isSidebarCollapsed ? (
+                <span className="min-w-0 truncate">{profileLabel}</span>
+              ) : null}
             </NavLink>
             <NavLink
               to="/logs"
               className={({ isActive }) =>
                 [
-                  "flex w-full items-center gap-3 rounded-[8px] px-4 py-3 text-left text-sm font-bold no-underline transition duration-200",
+                  "flex w-full items-center rounded-[8px] py-3 text-left text-sm font-bold no-underline transition duration-200",
+                  isSidebarCollapsed ? "justify-center px-3" : "gap-3 px-4",
                   isActive
                     ? "bg-[#e8f8ef] text-[#17b26a]"
                     : "text-[#475467] hover:-translate-y-px",
                 ].join(" ")
               }
+              title={isSidebarCollapsed ? "Logs" : undefined}
             >
               <SidebarIcon type="logs" />
-              <span>Logs</span>
+              {!isSidebarCollapsed ? <span>Logs</span> : null}
             </NavLink>
           </div>
 
-        <div className="border-t border-[#d7dfeb] px-6 py-3.5">
-          <div className="flex items-start gap-3 text-[#475467]">
+        <div
+          className={[
+            "border-t border-[#d7dfeb] py-3.5",
+            isSidebarCollapsed ? "px-2" : "px-6",
+          ].join(" ")}
+        >
+          <div
+            className={[
+              "flex text-[#475467]",
+              isSidebarCollapsed ? "justify-center" : "items-start gap-3",
+            ].join(" ")}
+            title={isSidebarCollapsed ? (loadError ? "Sync Issue" : "System Healthy") : undefined}
+          >
             <span className="mt-[7px] h-2.5 w-2.5 rounded-full bg-[#17b26a] shadow-[0_0_0_6px_rgba(23,178,106,0.12)]" />
-            <div>
+            {!isSidebarCollapsed ? <div>
               <strong className="mb-1 block text-sm font-bold text-[#070c11]">
                 {loadError ? "Sync Issue" : "System Healthy"}
               </strong>
               {loadError ? (
                 <p className="mt-2 text-sm text-[#f04438]">{loadError}</p>
               ) : null}
-            </div>
+            </div> : null}
           </div>
 
           <button
             type="button"
-            className="mt-5 inline-flex w-full items-center gap-3 rounded-[8px] border border-[#fecaca] bg-white px-5 py-4 text-left text-[15px] font-bold text-[#ef4444] transition duration-200 hover:-translate-y-px hover:shadow-[0_8px_18px_rgba(239,68,68,0.08)]"
+            className={[
+              "mt-5 inline-flex w-full items-center rounded-[8px] border border-[#fecaca] bg-white py-4 text-left text-[15px] font-bold text-[#ef4444] transition duration-200 hover:-translate-y-px hover:shadow-[0_8px_18px_rgba(239,68,68,0.08)]",
+              isSidebarCollapsed ? "justify-center px-3" : "gap-3 px-5",
+            ].join(" ")}
             onClick={onLogout}
+            title={isSidebarCollapsed ? "Logout" : undefined}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6 shrink-0">
               <path
@@ -298,7 +401,7 @@ function DashboardLayout({
                 strokeLinejoin="round"
               />
             </svg>
-            <span>Logout</span>
+            {!isSidebarCollapsed ? <span>Logout</span> : null}
           </button>
         </div>
         </div>
