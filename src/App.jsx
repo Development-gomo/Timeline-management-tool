@@ -29,6 +29,7 @@ import {
   firebaseAuth,
   firebaseInitError,
   hasFirebaseConfig,
+  sendManagedPasswordResetEmail,
   updateCurrentUserPassword,
 } from "./lib/firebase";
 import { sendNewUserWelcomeEmail } from "./lib/email";
@@ -1632,6 +1633,18 @@ function App() {
     });
   };
 
+  const handleSendUserPasswordReset = async (user) => {
+    await sendManagedPasswordResetEmail(user.email);
+    recordAuditLog({
+      actionKey: "app-user-password-reset-sent",
+      actionLabel: "Sent password reset email",
+      entityType: "app-user",
+      entityId: user.id,
+      entityName: user.name || user.email,
+      details: `Sent a password reset email to ${user.email}.`,
+    });
+  };
+
   const handleTemplateTaskChange = (taskId, field, value) => {
     const currentTask = template.data.find((task) => task.id === taskId);
     setTemplate((currentTemplate) => ({
@@ -1907,6 +1920,7 @@ function App() {
               currentUserRole={currentUserRole}
               isSuperAdmin={isSuperAdmin}
               onAddAppUser={handleAddAppUser}
+              onSendPasswordReset={handleSendUserPasswordReset}
               onUpdateAppUser={handleUpdateAppUser}
               onDeleteAppUser={handleDeleteAppUser}
             />

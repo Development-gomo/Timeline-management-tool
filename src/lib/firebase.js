@@ -96,11 +96,20 @@ async function updateCurrentUserPassword(password) {
   await updatePassword(firebaseAuth.currentUser, password);
 }
 
+async function sendManagedPasswordResetEmail(email) {
+  if (!hasFirebaseConfig || !firebaseAuth) {
+    throw new Error("Firebase auth is not configured yet.");
+  }
+
+  await sendPasswordResetEmail(firebaseAuth, String(email || "").trim().toLowerCase());
+}
+
 export {
   createManagedAuthUser,
   firebaseApp,
   firebaseAuth,
   firebaseDb,
   firebaseInitError,
+  sendManagedPasswordResetEmail,
   updateCurrentUserPassword,
 };

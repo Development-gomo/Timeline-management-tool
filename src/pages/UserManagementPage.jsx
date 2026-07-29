@@ -27,6 +27,7 @@ function UserManagementPage({
   currentUserRole = "user",
   isSuperAdmin,
   onAddAppUser,
+  onSendPasswordReset,
   onUpdateAppUser,
   onDeleteAppUser,
 }) {
@@ -34,6 +35,8 @@ function UserManagementPage({
   const [activeUserTab, setActiveUserTab] = useState("all");
   const [formError, setFormError] = useState("");
   const [pageNotice, setPageNotice] = useState("");
+  const [pageNoticeTone, setPageNoticeTone] = useState("success");
+  const [sendingResetUserId, setSendingResetUserId] = useState("");
   const [userForm, setUserForm] = useState({
     name: "",
     email: "",
@@ -135,6 +138,7 @@ function UserManagementPage({
       addResult.notice ||
         (addResult.emailSent ? "User created and welcome email sent successfully." : "")
     );
+    setPageNoticeTone(addResult.notice && !addResult.emailSent ? "warning" : "success");
     setUserForm({
       name: "",
       email: "",
@@ -201,17 +205,42 @@ function UserManagementPage({
     }
   };
 
+  const handleSendPasswordReset = async (user) => {
+    setSendingResetUserId(user.id);
+    setPageNotice("");
+
+    try {
+      await onSendPasswordReset(user);
+      setPageNotice(`Password reset email sent to ${user.email}.`);
+      setPageNoticeTone("success");
+    } catch (error) {
+      setPageNotice(
+        `Could not send a password reset email to ${user.email}: ${
+          error.message || "Unknown error."
+        }`
+      );
+      setPageNoticeTone("warning");
+    } finally {
+      setSendingResetUserId("");
+    }
+  };
+
   return (
     <div>
       {pageNotice ? (
         <div
-          className="mb-4 flex items-start justify-between gap-4 rounded-[8px] border border-[#abefc6] bg-[#ecfdf3] px-4 py-3 text-sm font-bold text-[#067647]"
+          className={[
+            "mb-4 flex items-start justify-between gap-4 rounded-[8px] border px-4 py-3 text-sm font-bold",
+            pageNoticeTone === "warning"
+              ? "border-[#fedf89] bg-[#fffaeb] text-[#b54708]"
+              : "border-[#abefc6] bg-[#ecfdf3] text-[#067647]",
+          ].join(" ")}
           role="status"
         >
           <span>{pageNotice}</span>
           <button
             type="button"
-            className="shrink-0 text-[#067647]"
+            className="shrink-0 text-current"
             onClick={() => setPageNotice("")}
             aria-label="Dismiss notification"
           >
@@ -374,6 +403,22 @@ function UserManagementPage({
                       </>
                     ) : canEditTarget || canRemoveTarget || isCurrentUser ? (
                       <>
+                        {canEditTarget ? (
+                          <button
+                            type="button"
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#abefc6] bg-white text-[#039855] transition duration-200 hover:-translate-y-px disabled:cursor-wait disabled:opacity-50"
+                            onClick={() => handleSendPasswordReset(user)}
+                            disabled={sendingResetUserId === user.id}
+                            aria-label={`Send password reset email to ${user.name}`}
+                            title="Send password reset email"
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+                              <path d="M4 6.5h16v11H4z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                              <path d="m4.8 7.3 7.2 5.5 7.2-5.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M17.5 3.5v4M15.5 5.5h4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            </svg>
+                          </button>
+                        ) : null}
                         {canEditTarget ? (
                           <button
                             type="button"

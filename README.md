@@ -53,11 +53,22 @@ FIREBASE_API_KEY=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL="GomoGroup Portal <portal@your-verified-domain.com>"
 PORTAL_URL=https://your-portal-domain.com
+TIMELINE_NOTIFICATION_EMAIL=project-manager@example.com
+CRON_SECRET=use_a_random_secret_with_at_least_16_characters
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk@example-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
 `FIREBASE_API_KEY` should match `VITE_FIREBASE_API_KEY`. The server-side copy is
 used to verify the signed-in Firebase user before sending email. `RESEND_FROM_EMAIL`
 must use a domain verified in Resend.
+
+The production deployment runs `/api/cron/timeline-notifications` every day at
+03:30 UTC (09:00 IST). It sends a manager reminder five days before active tasks
+are due and a daily overdue reminder to assigned task owners plus
+`TIMELINE_NOTIFICATION_EMAIL`. Firebase Admin credentials are required so the
+server-side scheduler can read projects and record delivery deduplication state.
 
 4. Start local development:
 
