@@ -56,6 +56,16 @@ const CHART_VISIBLE_COLUMNS = {
   month: 2,
 };
 
+const TABLE_COLUMN_WIDTHS = {
+  taskType: 215,
+  ownerIds: 150,
+  start_date: 159,
+  end_date: 159,
+  status: 150,
+  actions: 153,
+};
+const TABLE_DESCRIPTION_MIN_WIDTH = 350;
+
 const inputClass =
   "form-field w-full rounded-[8px] border border-[#c5d0de] bg-white px-[14px] py-3 text-sm text-[#070c11] outline-none transition focus:border-[rgba(23,178,106,0.5)] focus:shadow-[0_0_0_4px_rgba(23,178,106,0.08)]";
 
@@ -150,6 +160,34 @@ function applyChartColumnWidth(container, zoomLevel) {
   const containerWidth = container?.clientWidth || 1200;
   const nextColumnWidth = Math.floor(containerWidth / visibleColumns);
   gantt.config.min_column_width = Math.max(fallbackWidth, nextColumnWidth);
+}
+
+function applyTableColumnWidths(container) {
+  const fixedWidth = gantt.config.columns.reduce(
+    (total, column) =>
+      column.name === "text"
+        ? total
+        : total + (TABLE_COLUMN_WIDTHS[column.name] || Number(column.width) || 0),
+    0
+  );
+  const minimumWidth = fixedWidth + TABLE_DESCRIPTION_MIN_WIDTH;
+  const availableWidth = Math.max(
+    minimumWidth,
+    (container?.clientWidth || minimumWidth) - 2
+  );
+  const descriptionWidth = Math.max(
+    TABLE_DESCRIPTION_MIN_WIDTH,
+    availableWidth - fixedWidth
+  );
+
+  gantt.config.grid_width = availableWidth;
+  gantt.config.columns.forEach((column) => {
+    if (column.name === "text") {
+      column.width = descriptionWidth;
+    } else if (TABLE_COLUMN_WIDTHS[column.name]) {
+      column.width = TABLE_COLUMN_WIDTHS[column.name];
+    }
+  });
 }
 
 function mapTaskToEditor(task, dependencyIds = []) {
@@ -534,6 +572,7 @@ function Gantt({
           </div>`,
       },
     ].filter((column) => !readOnly || column.name !== "actions");
+    applyTableColumnWidths(containerRef.current);
 
     gantt.templates.tooltip_text = (start, end, task) => {
       const displayEnd =
@@ -838,10 +877,13 @@ function Gantt({
       return;
     }
 
-    const containerWidth = containerRef.current?.clientWidth || 1200;
     gantt.config.show_grid = viewMode !== "chart";
     gantt.config.show_chart = viewMode !== "table";
-    gantt.config.grid_width = viewMode === "table" ? Math.max(720, containerWidth - 2) : 920;
+    if (viewMode === "table") {
+      applyTableColumnWidths(containerRef.current);
+    } else {
+      gantt.config.grid_width = 920;
+    }
     gantt.config.readonly = readOnly;
     gantt.config.drag_progress = !readOnly;
     gantt.config.drag_resize = !readOnly;
@@ -905,10 +947,8 @@ function Gantt({
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      const containerWidth = containerRef.current?.clientWidth || 1200;
-
       if (viewMode === "table") {
-        gantt.config.grid_width = Math.max(720, containerWidth - 2);
+        applyTableColumnWidths(containerRef.current);
       }
 
       applyChartColumnWidth(containerRef.current, zoom);

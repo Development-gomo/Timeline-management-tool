@@ -477,18 +477,6 @@ select.app-select {
   padding-left: 0 !important;
 }
 
-.gantt_grid_head_cell[data-column-name="taskType"],
-.gantt_cell[data-column-name="taskType"] {
-  width: 215px !important;
-  min-width: 215px !important;
-  max-width: 215px !important;
-}
-
-.gantt_grid_head_cell[data-column-name="text"],
-.gantt_cell[data-column-name="text"] {
-  min-width: 350px !important;
-}
-
 .gantt_grid_head_cell[data-column-name="actions"],
 .gantt_cell[data-column-name="actions"] {
   padding-right: 0 !important;

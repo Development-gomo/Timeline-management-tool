@@ -12,7 +12,7 @@ function createUserWelcomeEmail({ name, email, password, portalUrl }) {
   const safeEmail = escapeHtml(email);
   const safePassword = escapeHtml(password);
   const safePortalUrl = escapeHtml(portalUrl);
-  const safeLogoUrl = `${safePortalUrl}/images/Primary-logo.webp`;
+  const safeLogoUrl = `${safePortalUrl}/images/Primary-logo.png`;
 
   return {
     subject: "Your GomoGroup project portal account",
@@ -43,7 +43,7 @@ function createUserWelcomeEmail({ name, email, password, portalUrl }) {
           <div style="padding:32px 16px">
             <div style="max-width:560px;margin:0 auto;overflow:hidden;border:1px solid #d7dfeb;border-radius:12px;background:#ffffff">
               <div style="padding:22px 28px;border-bottom:1px solid #d7dfeb">
-                <img src="${safeLogoUrl}" width="155" alt="GomoGroup" style="display:block;width:155px;max-width:100%;height:auto;border:0">
+                <img src="${safeLogoUrl}" width="155" alt="GomoGroup" style="display:block;width:155px;max-width:100%;height:auto;border:0;background:#ffffff">
               </div>
               <div style="padding:28px">
                 <h1 style="margin:0 0 16px;font-family:Merriweather,Georgia,serif;font-size:22px;font-weight:700;line-height:1.35">Your portal account is ready</h1>
@@ -73,7 +73,7 @@ function createTimelineTaskEmail({
   const isOverdue = type === "overdue";
   const safeProjectName = escapeHtml(projectName || "Project");
   const safeTimelineUrl = escapeHtml(timelineUrl);
-  const safeLogoUrl = `${escapeHtml(portalUrl)}/images/Primary-logo.webp`;
+  const safeLogoUrl = `${escapeHtml(portalUrl)}/images/Primary-logo.png`;
   const heading = isOverdue ? "Overdue tasks" : "Upcoming due dates";
   const intro = isOverdue
     ? `${tasks.length} task${tasks.length === 1 ? " is" : "s are"} past the due date and still require${tasks.length === 1 ? "s" : ""} attention.`
@@ -125,7 +125,7 @@ function createTimelineTaskEmail({
           <div style="padding:32px 16px">
             <div style="max-width:560px;margin:0 auto;overflow:hidden;border:1px solid #d7dfeb;border-radius:12px;background:#ffffff">
               <div style="padding:22px 28px;border-bottom:1px solid #d7dfeb">
-                <img src="${safeLogoUrl}" width="155" alt="GomoGroup" style="display:block;width:155px;max-width:100%;height:auto;border:0">
+                <img src="${safeLogoUrl}" width="155" alt="GomoGroup" style="display:block;width:155px;max-width:100%;height:auto;border:0;background:#ffffff">
               </div>
               <div style="padding:28px">
                 <div style="display:inline-block;margin-bottom:16px;padding:6px 10px;border-radius:999px;background:${isOverdue ? "#fff5f4" : "#fffaeb"};color:${isOverdue ? "#b42318" : "#b54708"};font-size:12px;font-weight:700">${isOverdue ? "OVERDUE" : "DUE SOON"}</div>
