@@ -97,21 +97,19 @@ export default async function handler(request, response) {
         .filter(
           (task) =>
             !task.isPhase &&
-            task.end_date &&
             ["ongoing", "pending"].includes(String(task.status || "pending"))
         )
-        .slice(0, 20)
         .map((task) => ({
           id: task.id,
           name: task.text || "Untitled task",
-          dueDate: task.end_date,
+          dueDate: task.end_date || "Not scheduled",
           status: task.status || "pending",
           daysOverdue: 0,
         }));
 
       if (!previewTasks.length) {
         return response.status(400).json({
-          error: "This project has no active scheduled tasks to include in a test email.",
+          error: "This project has no pending or ongoing tasks to include in a test email.",
         });
       }
 

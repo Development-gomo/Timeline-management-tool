@@ -502,7 +502,9 @@ function Gantt({
         template: (task) =>
           buildInlineDateCell(
             task,
-            task.start_date ? formatDisplayDate(task.start_date) : "Not set",
+            !task.unscheduled && task.start_date
+              ? formatDisplayDate(task.start_date)
+              : "Not set",
             "start date",
             "start_date",
             inlineDateEditorRef.current,
@@ -517,7 +519,7 @@ function Gantt({
         template: (task) =>
           buildInlineDateCell(
             task,
-            task.start_date && task.end_date
+            !task.unscheduled && task.start_date && task.end_date
               ? formatDisplayDate(gantt.date.add(task.end_date, -1, "day"))
               : "Not set",
             "end date",
@@ -576,9 +578,11 @@ function Gantt({
 
     gantt.templates.tooltip_text = (start, end, task) => {
       const displayEnd =
-        task.start_date && task.end_date ? addDays(formatDateString(end), -1) : "";
+        !task.unscheduled && task.start_date && task.end_date
+          ? addDays(formatDateString(end), -1)
+          : "";
       const schedule =
-        task.start_date && displayEnd
+        !task.unscheduled && task.start_date && displayEnd
           ? `${formatDisplayDate(start)} - ${formatDisplayDate(displayEnd)}`
           : "Dates not scheduled yet";
 
